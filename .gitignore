@@ -1,0 +1,17 @@
+#Virtual  Enviroment
+.venv/
+venv/
+
+
+#Database
+*.sqlite3
+
+#Python cache
+__pycache__/
+*.pyc
+
+#IDE
+.idea/
+
+#Environment varibles / seecrets
+.envgit
