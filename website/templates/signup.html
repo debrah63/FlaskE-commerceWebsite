@@ -1,10 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %} Sign Up {% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4"  style="color: white;"> Sign Up </h2>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.username.label }}
+                    {{ form.username(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.role.label }}
+                    {% for subfield in form.role %}
+                        <div class="form-check">
+                            {{ subfield(class="form-check-input") }}
+                            {{ subfield.label(class="form-check-label") }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password1.label }}
+                    {{ form.password1(class="form-control") }}
+                    {% for error in form.password1.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password2.label }}
+                    {{ form.password2(class="from-control") }}
+                    {% for error in form.password2.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                {{ form.submit(class="btn btn-primary w-100") }}
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
