@@ -1,0 +1,25 @@
+{% extends 'base.html'  %}
+
+{% block title %} Pending Sellers {% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+    <h2>Pending Seller Approvals</h2>
+
+    {% if sellers %}
+        <ul>
+            {% for seller in sellers %}
+            <li>
+                {{seller.username }} ({{ seller.email }})
+                <a href="/approve-seller/{{ seller.id }}">Approve</a>
+                <a href="/reject-seller/{{seller.id }}">Reject</a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>NO pending seller applications.</p>
+    {% endif %}
+</div>
+
+{% endblock%}
