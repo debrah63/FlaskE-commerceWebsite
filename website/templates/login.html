@@ -18,8 +18,11 @@
                 </div>
 
                 <div class="mb-3">
-                    {{ form.password.label }}
-                    {{ form.password(class="form-control") }}
+                    {{ form.passwordlabel }}
+                    <div style="display: flex; gap: 8px;">
+                        {{ form.password(class="form-control", id="password-field") }}
+                        <button type="button" id="toggle-password" onclick="togglePassword('password-field')">Show</button>
+                    </div>
                 </div>
 
                 {{ form.submit(class="btn btn-primary w-100") }}

@@ -41,4 +41,7 @@ def create_app():
     from .admin import admin
     app.register_blueprint(admin, url_prefix='/')
 
+    from .seller import seller
+    app.register_blueprint(seller, url_prefix='/')
+
     return app

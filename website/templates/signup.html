@@ -12,41 +12,27 @@
             <form method="POST" novalidate>
                 {{ form.hidden_tag() }}
 
-                <div class="mb-3">
-                    {{ form.email.label }}
-                    {{ form.email(class="form-control") }}
-                </div>
+ <div class="mb-3">
+    {{ form.password1.label }}
+    <div style="display: flex; gap: 8px;">
+        {{ form.password1(class="form-control", id="password1-field") }}
+        <button type="button" id="toggle-password1" onclick="togglePassword('password1-field', 'toggle-password1')">Show</button>
+    </div>
+    {% for error in form.password1.errors %}
+        <small class="text-danger">{{ error }}</small>
+    {% endfor %}
+</div>
 
-                <div class="mb-3">
-                    {{ form.username.label }}
-                    {{ form.username(class="form-control") }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.role.label }}
-                    {% for subfield in form.role %}
-                        <div class="form-check">
-                            {{ subfield(class="form-check-input") }}
-                            {{ subfield.label(class="form-check-label") }}
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.password1.label }}
-                    {{ form.password1(class="form-control") }}
-                    {% for error in form.password1.errors %}
-                        <small class="text-danger">{{ error }}</small>
-                    {% endfor %}
-                </div>
-
-                <div class="mb-3">
-                    {{ form.password2.label }}
-                    {{ form.password2(class="from-control") }}
-                    {% for error in form.password2.errors %}
-                        <small class="text-danger">{{ error }}</small>
-                    {% endfor %}
-                </div>
+<div class="mb-3">
+    {{ form.password2.label }}
+    <div style="display: flex; gap: 8px;">
+        {{ form.password2(class="form-control", id="password2-field") }}
+        <button type="button" id="toggle-password2" onclick="togglePassword('password2-field', 'toggle-password2')">Show</button>
+    </div>
+    {% for error in form.password2.errors %}
+        <small class="text-danger">{{ error }}</small>
+    {% endfor %}
+</div>
 
                 {{ form.submit(class="btn btn-primary w-100") }}
             </form>

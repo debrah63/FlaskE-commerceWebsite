@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.-0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My E-commerce Site | {% block title %} {% endblock %}</title>
 </head>
 <body>
@@ -25,12 +25,28 @@
             <strong>{{ message }}</strong>
         </div>
     {% endfor %}
+
     {% block body %}
     {% endblock %}
 
     <footer>
-        <p>My E-commerce Site & copy; 2026</p>
+        <p>My E-commerce Site &copy; 2026</p>
     </footer>
+
+    <script>
+        function togglePassword(fieldId, buttonId) {
+            const field = document.getElementById(fieldId);
+            const button = document.getElementById(buttonId);
+
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                field.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
+    </script>
 
 </body>
 </html>
