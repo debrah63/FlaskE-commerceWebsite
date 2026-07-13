@@ -18,10 +18,10 @@
                 </div>
 
                 <div class="mb-3">
-                    {{ form.passwordlabel }}
+                    {{ form.password.label }}
                     <div style="display: flex; gap: 8px;">
                         {{ form.password(class="form-control", id="password-field") }}
-                        <button type="button" id="toggle-password" onclick="togglePassword('password-field')">Show</button>
+                        <button type="button" id="toggle-password" onclick="togglePassword('password-field', 'toggle-password')">Show</button>
                     </div>
                 </div>
 
