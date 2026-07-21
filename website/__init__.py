@@ -7,7 +7,7 @@ from flask_mail import Mail
 
 load_dotenv()
 
-print('SECRET_KEY:',os.environ.get('SECRET_KEY'))
+
 
 db = SQLAlchemy()
 mail = Mail()

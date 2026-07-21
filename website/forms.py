@@ -1,13 +1,17 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField, SubmitField, RadioField
-from wtforms.validators import DataRequired, length, EqualTo
+from wtforms.validators import DataRequired, length, EqualTo, Optional
 from flask_wtf. file import FileField, FileRequired, FileAllowed
 from wtforms import FloatField, IntegerField, BooleanField
 from wtforms.validators import NumberRange
+from wtforms import TextAreaField
+
 
 
 class ProductForm(FlaskForm):
     product_name = StringField('Product Name', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    category = StringField('Category', validators=[DataRequired()])
     current_price = FloatField('Current Price', validators=[DataRequired()])
     previous_price = FloatField('Previous Price', validators=[DataRequired()])
     in_stock = IntegerField('In stock', validators=[DataRequired(), NumberRange(min=0)])

@@ -28,6 +28,8 @@ def add_product():
 
         new_product = Product()
         new_product.product_name = form.product_name.data
+        new_product.description = form.description.data
+        new_product.category = form.category.data
         new_product.current_price = form.current_price.data
         new_product.previous_price = form.previous_price.data
         new_product.in_stock = form.in_stock.data

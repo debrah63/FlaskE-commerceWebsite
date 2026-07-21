@@ -47,6 +47,16 @@ Add_product
                     {{ form.flash_sale.label(class="form-check-label") }}
                 </div>
 
+                <div class="mb-3">
+                    {{ form.description.label }}
+                    {{ form.description(class= "form-control") }}
+                </div>
+
+                <div class=" mb-3">
+                    {{ form.category.label }}
+                    {{ form.category(class="form-control") }}
+                </div>
+
                 {{ form.submit(class="btn btn-primary") }}
             </form>
         </div>

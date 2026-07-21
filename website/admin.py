@@ -35,6 +35,7 @@ def approve_seller(seller_id):
 @login_required
 def reject_seller(seller_id):
     if current_user.role != 'admin':
+        flash('Access denied!!')
         render_template('404.html')
 
     seller = Customer.query.get(seller_id)
@@ -45,3 +46,10 @@ def reject_seller(seller_id):
         flash(f'{seller.username}\'s seller application has been rejected')
 
     return redirect('/pending-sellers')
+
+@admin.route('/admin-dashboard')
+@login_required
+def admin_dashboard():
+    if current_user.role != 'admin':
+        return render_template('404.html')
+    return render_template('admin_dashboard.html')

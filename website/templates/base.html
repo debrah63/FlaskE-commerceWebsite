@@ -7,24 +7,28 @@
 </head>
 <body>
 
-    <nav>
-        <a href="/">Home</a>
-
-        {% if current_user.is_authenticated %}
-            <a href="/profile/{{ current_user.id }}">Profile</a>
-            <a href="/orders">Orders</a>
-            <a href="/logout">Logout</a>
-        {% else %}
-            <a href="/sign-up">Sign Up</a>
-            <a href="/login">Login</a>
-        {% endif %}
-    </nav>
 
     {% for message in get_flashed_messages() %}
         <div class="flash-message">
             <strong>{{ message }}</strong>
         </div>
     {% endfor %}
+
+    <nav>
+    <a href="/">Home</a>
+
+    {% if current_user.is_authenticated %}
+        <a href="/profile/{{ current_user.id }}">Profile</a>
+        <a href="/orders">Orders</a>
+        {% if current_user.role == 'admin' %}
+            <a href="/admin-dashboard">Admin Dashboard</a>
+        {% endif %}
+        <a href="/logout">Logout</a>
+    {% else %}
+        <a href="/sign-up">Sign Up</a>
+        <a href="/login">Login</a>
+    {% endif %}
+</nav>
 
     {% block body %}
     {% endblock %}
