@@ -3,11 +3,15 @@ from flask_login import UserMixin
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 
+USER_ROLES = ('buyer', 'seller', 'admin')
+
 class Customer(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
     username = db.Column(db.String(120), unique=True)
     password_hash = db.Column(db.String(150))
+    reset_token = db.Column(db.String(200),  nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
     date_joined = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     role = db.Column(db.String(50),nullable=False, default='buyer')
