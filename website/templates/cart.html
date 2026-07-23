@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %} Cart {% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+
+    {% if cart %}
+        <h1>Shopping Cart</h1>
+        <a href="{{ url_for('views.home') }}">Continue Shopping</a>
+
+        {% for item in cart %}
+            <div class="row" style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+                <div class="col-sm-2">
+                    <img src="/media/{{ item.product.product_picture }}" alt="" style="height: 80px;">
+                </div>
+                <div class="col-sm-4">
+                    <h5>{{ item.product.product_name }}</h5>
+                    <p>GH₵ {{ item.product.current_price }} each</p>
+                    <p><strong>Subtotal: GH₵ {{ item.product.current_price * item.quantity }}</strong></p>
+                </div>
+                <div class="col-sm-3">
+                    <a href="{{ url_for('views.decrease_cart', cart_id=item.id) }}" class="btn btn-outline-secondary btn-sm">-</a>
+                    <span class="mx-2">{{ item.quantity }}</span>
+                    <a href="{{ url_for('views.increase_cart', cart_id=item.id) }}" class="btn btn-outline-secondary btn-sm">+</a>
+                </div>
+                <div class="col-sm-3">
+                    <a href="{{ url_for('views.remove_from_cart', cart_id=item.id) }}" class="btn btn-outline-danger btn-sm">Remove</a>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div style="margin-top: 20px;">
+            <p>Subtotal: GH₵ {{ amount }}</p>
+            <p>Shipping: GH₵ 50</p>
+            <p><strong>Total: GH₵ {{ total }}</strong></p>
+        </div>
+
+        <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+
+    {% else %}
+        <h1>Your Cart is Empty</h1>
+        <a href="{{ url_for('views.home') }}">Continue Shopping</a>
+    {% endif %}
+
+</div>
+
+{% endblock %}

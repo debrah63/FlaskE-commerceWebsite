@@ -1,9 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %} Home {% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block body %}
 
-<h1>Hello, it's working!</h1>
+<div class="container my-5">
+
+    <h2>Products</h2>
+
+    {% if products %}
+
+        {% for product in products %}
+
+    <div class="mb-4">
+
+    <img src="{{ url_for('views.get_image', filename=product.product_picture) }}"
+         alt="{{ product.product_name }}"
+         width="200">
+
+    <h4>{{ product.product_name }}</h4>
+
+    <p>GH₵{{ product.current_price }}</p>
+
+    <a href="/add-to-cart/{{ product.id }}" class="btn btn-primary">
+        Add to Cart
+    </a>
+
+    </div>
+
+<hr>
+
+{% endfor %}
+
+    {% else %}
+
+        <p>No products available.</p>
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

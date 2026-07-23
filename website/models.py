@@ -30,6 +30,8 @@ class Customer(db.Model, UserMixin):
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password=password)
+
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(100), nullable=False)
@@ -43,3 +45,13 @@ class Product(db.Model):
     date_added = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     seller_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
+
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    customer_link =db.Column(db.Integer, db.ForeignKey('customer.id'), nullable =False)
+    product_link = db.Column(db.Integer, db.ForeignKey('product.id'), nullable =False)
+
+    customer = db.relationship('Customer', backref=db.backref('cart_items', lazy=True))
+    product = db.relationship('Product', backref=db.backref('cart', lazy=True))

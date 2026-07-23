@@ -49,6 +49,15 @@ def sign_up():
             print(e)
             flash('Account Not Created!! An account with this Email already exists')
 
+    for field, errors in  form.errors.items():
+        for error in errors:
+            if field == 'username':
+                flash('Username must be at least 5 characters long.')
+            elif field == 'email':
+                flash('Enter a valid email address.')
+            else:
+                flash(f'{field.capitalize()}: {error}.')
+
     return render_template('signup.html', form=form)
 
 
@@ -135,7 +144,6 @@ def reset_password(token):
             return redirect('/forgot-password')
 
     except Exception as e:
-        print('RESET TOKEN ERROR:', repr(e))
         flash('This reset link is invalid or has expired.')
         return redirect('/forgot-password')
 

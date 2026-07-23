@@ -23,8 +23,8 @@ def add_product():
     if form.validate_on_submit():
         file = form.product_picture.data
         file_name = secure_filename(file.filename)
-        file_path = f'./media/{file_name}'
-        file.save(file_path)
+        file_path = file_name
+        file.save(f'./media/{file_name}')
 
         new_product = Product()
         new_product.product_name = form.product_name.data
@@ -34,7 +34,7 @@ def add_product():
         new_product.previous_price = form.previous_price.data
         new_product.in_stock = form.in_stock.data
         new_product.flash_sale = form.flash_sale.data
-        new_product.product_picture = file_path
+        new_product.product_picture = file_name
         new_product.seller_id = current_user.id
 
         try:
