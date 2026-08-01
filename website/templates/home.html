@@ -1,43 +1,44 @@
 {% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %} Home {% endblock %}
 
 {% block body %}
 
 <div class="container my-5">
+    <h1>Welcome to My E-commerce Site</h1>
 
-    <h2>Products</h2>
+    {% if items %}
+        <div class="row">
+            {% for item in items %}
+                <div class="col-sm-3 mb-4">
+                    <div class="card h-100">
+                        <img src="/media/{{ item.product_picture }}" class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ item.product_name }}</h6>
+                            <p class="card-text text-muted small">{{ item.category }}</p>
 
-    {% if products %}
+                            <p>
+                                <strong>GH₵ {{ item.current_price }}</strong>
+                                {% if item.previous_price %}
+                                    <small class="text-muted"><s>GH₵ {{ item.previous_price }}</s></small>
+                                {% endif %}
+                            </p>
 
-        {% for product in products %}
+                            <p class="small text-muted">Sold by {{ item.seller.username }}</p>
 
-    <div class="mb-4">
-
-    <img src="{{ url_for('views.get_image', filename=product.product_picture) }}"
-         alt="{{ product.product_name }}"
-         width="200">
-
-    <h4>{{ product.product_name }}</h4>
-
-    <p>GH₵{{ product.current_price }}</p>
-
-    <a href="/add-to-cart/{{ product.id }}" class="btn btn-primary">
-        Add to Cart
-    </a>
-
-    </div>
-
-<hr>
-
-{% endfor %}
-
+                            {% if item.in_stock > 0 %}
+                                <a href="{{ url_for('views.add_to_cart', item_id=item.id) }}" class="btn btn-primary btn-sm">Add to Cart</a>
+                            {% else %}
+                                <span class="badge bg-secondary">Out of Stock</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-
-        <p>No products available.</p>
-
+        <p>No products available yet.</p>
     {% endif %}
-
 </div>
 
 {% endblock %}

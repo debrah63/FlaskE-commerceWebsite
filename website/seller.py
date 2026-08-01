@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
+import os
 from .forms import ProductForm
 from .models import Product
 from . import db
@@ -23,10 +24,15 @@ def add_product():
     if form.validate_on_submit():
         file = form.product_picture.data
         file_name = secure_filename(file.filename)
-        file_path = file_name
-        file.save(f'./media/{file_name}')
+
+        #file_path = file_name
+        #file.save(f'./media/{file_name}')
+
+        upload_path = os.path.join('media', file_name)
+        file.save(upload_path)
 
         new_product = Product()
+
         new_product.product_name = form.product_name.data
         new_product.description = form.description.data
         new_product.category = form.category.data
@@ -40,11 +46,15 @@ def add_product():
         try:
             db.session.add(new_product)
             db.session.commit()
-            flash(f'{new_product.product_name} added successfully')
-            return redirect('/my-products')
+
+            flash(f'{new_product.product_name} added successfully.', 'success')
+            return redirect('seller.my-products')
         except Exception as e:
+
+            db.session.rollback()
             print(e)
-            flash('Product could not be added')
+
+            flash('Product could not be added.','danger')
 
     return render_template('add_product.html', form=form)
 
@@ -55,5 +65,5 @@ def my_products():
     if not seller_required():
         return render_template('404.html')
 
-    products = Product.query.filter_by(seller_id=current_user.id).all()
+    products = Product.query.filter_by(seller_id=current_user.id).order_by(Product.date_added.desc()).all()
     return render_template('my_products.html', products=products)

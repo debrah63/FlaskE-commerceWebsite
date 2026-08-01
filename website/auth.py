@@ -19,46 +19,136 @@ def sign_up():
     form = SignUpForm()
 
     if form.validate_on_submit():
-        email = form.email.data
-        username = form.username.data
+
         role = form.role.data
-        password2 = form.password2.data
+
+        email = form.email.data.strip().lower()
+        username = form.username.data.strip()
 
         new_customer = Customer()
         new_customer.email = email
         new_customer.username = username
         new_customer.role = role
-        new_customer.password = password2
+        new_customer.password = form.password2.data
 
-        if role == 'seller':
-            new_customer.is_approved = False
-        else:
-            new_customer.is_approved = True
+        new_customer.is_approved = (role != 'seller')
 
         try:
+
             db.session.add(new_customer)
             db.session.commit()
 
+            serializer = get_serializer()
+
+            token = serializer.dumps(
+                email,
+                salt='email-verification'
+            )
+
+            verify_url = url_for(
+                'auth.verify_email',
+                token=token,
+                _external=True
+            )
+
+            msg = Message(
+                'Verify Your Email',
+                sender=os.environ.get('MAIL_USERNAME'),
+                recipients=[email]
+            )
+
+            msg.body = (
+                f'Welcome!\n\n'
+                f'Click the link below to verify your email:\n\n'
+                f'{verify_url}\n\n'
+                f'This link expires in 30 minutes.'
+            )
+
+            mail.send(msg)
+
+
             if role == 'seller':
-                flash('Account Created! Your seller account is pending admin approval before you can list products.')
+                flash(
+                    'Account created! Your seller account is pending admin approval.',
+                    'info'
+                )
             else:
-                flash('Account Created Successfully, You can now Log In')
+                flash(
+                    'Account Created Successfully. You can now Log In.',
+                    'success'
+                )
 
-            return redirect('/login')
+            return redirect(url_for('auth.login'))
+
         except Exception as e:
+
+            db.session.rollback()
+
             print(e)
-            flash('Account Not Created!! An account with this Email already exists')
 
-    for field, errors in  form.errors.items():
-        for error in errors:
-            if field == 'username':
-                flash('Username must be at least 5 characters long.')
-            elif field == 'email':
-                flash('Enter a valid email address.')
-            else:
-                flash(f'{field.capitalize()}: {error}.')
+            flash(
+                'Account Not Created!! An account with this email already exists.',
+                'danger'
+            )
 
-    return render_template('signup.html', form=form)
+    return render_template(
+        'signup.html',
+        form=form
+    )
+
+@auth.route('/verify-email/<token>')
+def verify_email(token):
+
+    serializer = get_serializer()
+
+    try:
+        email = serializer.loads(
+            token,
+            salt='email-verification',
+            max_age=1800
+        )
+
+    except Exception:
+
+        flash(
+            'Verification link is invalid or has expired.',
+            'danger'
+        )
+
+        return redirect(url_for('auth.login'))
+
+    customer = Customer.query.filter_by(
+        email=email
+    ).first()
+
+    if not customer:
+
+        flash(
+            'Account not found.',
+            'danger'
+        )
+
+        return redirect(url_for('auth.sign_up'))
+
+    if customer.email_verified:
+
+        flash(
+            'Your email has already been verified.',
+            'info'
+        )
+
+        return redirect(url_for('auth.login'))
+
+    customer.email_verified = True
+
+    db.session.commit()
+
+    flash(
+        'Email verified successfully! You can now log in.',
+        'success'
+    )
+
+    return redirect(url_for('auth.login'))
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -66,95 +156,212 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        email = form.email.data
-        password = form.password.data
 
-        customer = Customer.query.filter_by(email=email).first()
+        email = form.email.data.strip().lower()
+
+        customer = Customer.query.filter_by(
+            email=email
+        ).first()
 
         if customer:
-            if customer.verify_password(password=password):
-                login_user(customer, remember=True)
-                return redirect('/')
-            else:
-                flash('Incorrect Email or Password')
-        else:
-            flash('Account does not exist, please Sign Up')
-    return render_template('login.html', form=form)
 
+            if customer.verify_password(
+                    password=form.password.data
+            ):
+
+
+                if not customer.email_verified:
+
+                    flash(
+                        'Please verify your email before logging in.',
+                        'warning'
+                    )
+
+                    return render_template(
+                        'login.html',
+                        form=form
+                    )
+
+                if (
+                        customer.role == 'seller'
+                        and
+                        not customer.is_approved
+                ):
+                    flash(
+                        'Your seller account is still waiting for admin approval.',
+                        'warning'
+                    )
+
+                    return render_template(
+                        'login.html',
+                        form=form
+                    )
+
+                login_user(
+                    customer,
+                    remember=True
+                )
+
+                flash(
+                    f'Welcome back, {customer.username}!',
+                    'success'
+                )
+
+                return redirect(
+                    url_for('views.home')
+                )
+
+            else:
+
+                flash(
+                    'Incorrect Email or Password.',
+                    'danger'
+                )
+
+        else:
+
+            flash(
+                'Account does not exist. Please Sign Up.',
+                'warning'
+            )
+
+    return render_template(
+        'login.html',
+        form=form
+    )
 
 @auth.route('/logout')
 @login_required
 def log_out():
+
     logout_user()
-    return redirect('/')
+
+    flash(
+        'You have been logged out.',
+        'info'
+    )
+
+    return redirect(
+        url_for('views.home')
+    )
 
 
 @auth.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
+
     form = ForgotPasswordForm()
 
     if form.validate_on_submit():
-        email = form.email.data
-        customer = Customer.query.filter_by(email=email).first()
+
+        email = form.email.data.strip().lower()
+
+        customer = Customer.query.filter_by(
+            email=email
+        ).first()
 
         if customer:
+
             serializer = get_serializer()
-            token = serializer.dumps(email, salt='password-reset')
 
-            customer.reset_token = token
-            db.session.commit()
+            token = serializer.dumps(
+                email,
+                salt='password-reset'
+            )
 
-            reset_url = url_for('auth.reset_password', token=token, _external=True)
+            reset_url = url_for(
+                'auth.reset_password',
+                token=token,
+                _external=True
+            )
 
-            msg = Message('Password Reset Request',
-                          recipients=[email]
-                          )
-            msg.body = f'Click this link to reset your password: {reset_url}\nThis link expires in 30 minutes.'
+            msg = Message(
+                'Password Reset Request',
+                sender=os.environ.get('MAIL_USERNAME'),
+                recipients=[email]
+            )
 
-
+            msg.body = (
+                f'Click this link to reset your password:\n\n'
+                f'{reset_url}\n\n'
+                f'This link expires in 30 minutes.'
+            )
 
             mail.send(msg)
 
-        flash('If that email exists, a reset link has been sent.')
-        return redirect('/login')
+        flash(
+            'If that email exists, a reset link has been sent.',
+            'info'
+        )
 
-    return render_template('forgot_password.html', form=form)
+        return redirect(
+            url_for('auth.login')
+        )
+
+    return render_template(
+        'forgot_password.html',
+        form=form
+    )
 
 
 @auth.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
 
-
-
     serializer = get_serializer()
 
     try:
 
-        email = serializer.loads(token, salt='password-reset', max_age=1800)
+        email = serializer.loads(
+            token,
+            salt='password-reset',
+            max_age=1800
+        )
 
+    except Exception:
 
+        flash(
+            'This reset link is invalid or has expired.',
+            'danger'
+        )
 
-        customer = Customer.query.filter_by(email=email).first()
-
-
-
-        if not customer or customer.reset_token != token:
-
-            flash('This reset link is invalid or has already been used.')
-            return redirect('/forgot-password')
-
-    except Exception as e:
-        flash('This reset link is invalid or has expired.')
-        return redirect('/forgot-password')
-
+        return redirect(
+            url_for('auth.forgot_password')
+        )
 
     form = ResetPasswordForm()
 
     if form.validate_on_submit():
-        customer = Customer.query.filter_by(email=email).first()
-        customer.password = form.password2.data
-        db.session.commit()
-        flash('Your password has been reset. You can now log in.')
-        return redirect('/login')
 
-    return render_template('reset_password.html', form=form)
+        customer = Customer.query.filter_by(
+            email=email
+        ).first()
+
+        if not customer:
+
+            flash(
+                'User not found.',
+                'danger'
+            )
+
+            return redirect(
+                url_for('auth.login')
+            )
+
+        customer.password = form.password2.data
+        customer.reset_token = None
+        customer.reset_token_expiry = None
+
+        db.session.commit()
+
+        flash(
+            'Your password has been reset successfully. You can now log in.',
+            'success'
+        )
+
+        return redirect(
+            url_for('auth.login')
+        )
+
+    return render_template(
+        'reset_password.html',
+        form=form
+    )

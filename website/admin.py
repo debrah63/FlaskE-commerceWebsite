@@ -26,9 +26,11 @@ def approve_seller(seller_id):
     if seller and seller.role == 'seller':
         seller.is_approved = True
         db.session.commit()
-        flash(f'{seller.username} has been approved as a seller')
+        flash(f'{seller.username} has been approved as a seller.', 'success')
+    else:
+        flash('Seller not found.', 'danger')
 
-    return redirect('/pending-sellers')
+    return redirect('admin.pending-sellers')
 
 
 @admin.route('/reject-seller/<int:seller_id>')
@@ -43,7 +45,7 @@ def reject_seller(seller_id):
     if seller and seller.role == 'seller':
         db.session.delete(seller)
         db.session.commit()
-        flash(f'{seller.username}\'s seller application has been rejected')
+        flash(f'{seller.username}\'s seller application has been rejected.', 'warning')
 
     return redirect('/pending-sellers')
 

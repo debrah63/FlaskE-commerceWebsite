@@ -8,9 +8,9 @@ from flask_mail import Mail
 load_dotenv()
 
 
-
 db = SQLAlchemy()
 mail = Mail()
+
 DB_NAME = 'database.sqlite3'
 
 
@@ -53,7 +53,7 @@ def create_app():
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return render_template('404.html')
+        return render_template('404.html'), 404
 
     with app.app_context():
         db.create_all()

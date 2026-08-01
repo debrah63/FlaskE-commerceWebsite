@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+
+    <h1 class="mb-4">My Orders</h1>
+
+
+    {% if orders %}
+
+        {% for order in orders %}
+
+        <div class="card mb-4 shadow-sm">
+
+            <div class="card-header">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <strong>
+                            Order #{{ order.id }}
+                        </strong>
+
+                        <br>
+
+                        <small class="text-muted">
+                            {{ order.date_created.strftime('%d %b %Y') }}
+                        </small>
+                    </div>
+
+
+                    <div>
+                        {% if order.status == 'Pending Payment' %}
+
+                            <span class="badge bg-warning text-dark">
+                                Awaiting Payment
+                            </span>
+
+                        {% elif order.status == 'Paid' %}
+
+                            <span class="badge bg-success">
+                                Paid
+                            </span>
+
+                        {% elif order.status == 'Delivered' %}
+
+                            <span class="badge bg-primary">
+                                Delivered
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ order.status }}
+                            </span>
+
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                    {% for item in order.items %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.product.product_name }}
+                        </td>
+
+
+                        <td>
+                            {{ item.quantity }}
+                        </td>
+
+
+                        <td>
+                            GH₵ {{ "%.2f"|format(item.price_at_purchase) }}
+                        </td>
+
+
+                        <td>
+                            GH₵ {{ "%.2f"|format(item.price_at_purchase * item.quantity) }}
+                        </td>
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                    </tbody>
+
+                </table>
+
+
+                <hr>
+
+
+                <h5 class="text-end">
+
+                    Total:
+
+                    GH₵
+                    {{
+                    "%.2f"|format(
+                    order.total_amount)
+                    }}
+
+                </h5>
+
+
+            </div>
+
+        </div>
+
+
+        {% endfor %}
+
+
+    {% else %}
+
+        <div class="alert alert-info">
+
+            You have no orders yet.
+
+            <a href="/" class="alert-link">
+                Start shopping
+            </a>
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+{% endblock %}

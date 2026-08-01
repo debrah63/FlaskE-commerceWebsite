@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %} Checkout {% endblock %}
+
+{% block body %}
+
+<div class="container my-5">
+    <h1>Checkout</h1>
+
+    {% for item in cart %}
+        <div class="row" style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+            <div class="col-sm-6">
+                <h5>{{ item.product.product_name }}</h5>
+                <p>Quantity: {{ item.quantity }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p>GH₵ {{ item.product.current_price * item.quantity }}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div style="margin-top: 20px;">
+        <p><strong>Total: GH₵ {{ total }}</strong></p>
+    </div>
+
+    <form action="{{ url_for('views.place_order') }}" method="POST">
+        <button type="submit" class="btn btn-primary">Place Order</button>
+    </form>
+</div>
+
+{% endblock %}
