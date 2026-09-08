@@ -20,18 +20,13 @@ class Customer(db.Model, UserMixin):
     reset_token = db.Column(db.String(200), nullable=True)
     reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
-    date_joined = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc)
-    )
+    date_joined = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
     role = db.Column(db.String(50), nullable=False, default='buyer')
     is_approved = db.Column(db.Boolean, default=False)
+    is_verified = db.Column(db.Boolean, default=False)
 
-    products = db.relationship(
-        'Product',
-        backref=db.backref('seller', lazy=True)
-    )
+    products = db.relationship('Product',backref=db.backref('seller', lazy=True))
 
     @property
     def password(self):
@@ -61,16 +56,9 @@ class Product(db.Model):
 
     flash_sale = db.Column(db.Boolean, default=False)
 
-    date_added = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc)
-    )
+    date_added = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
-    seller_id = db.Column(
-        db.Integer,
-        db.ForeignKey('customer.id'),
-        nullable=False
-    )
+    seller_id = db.Column(db.Integer,db.ForeignKey('customer.id'),nullable=False)
 
 
 class Cart(db.Model):
@@ -78,70 +66,32 @@ class Cart(db.Model):
 
     quantity = db.Column(db.Integer, nullable=False)
 
-    customer_id = db.Column(
-        db.Integer,
-        db.ForeignKey('customer.id'),
-        nullable=False
-    )
+    customer_id = db.Column(db.Integer,db.ForeignKey('customer.id'),nullable=False)
 
-    product_id = db.Column(
-        db.Integer,
-        db.ForeignKey('product.id'),
-        nullable=False
-    )
+    product_id = db.Column(db.Integer,db.ForeignKey('product.id'),nullable=False)
 
-    customer = db.relationship(
-        'Customer',
-        backref=db.backref('cart_items', lazy=True)
-    )
+    customer = db.relationship('Customer',backref=db.backref('cart_items', lazy=True))
 
-    product = db.relationship(
-        'Product',
-        backref=db.backref('cart_entries', lazy=True)
-    )
+    product = db.relationship('Product',backref=db.backref('cart_entries', lazy=True))
 
 
 class Order(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    customer_id = db.Column(
-        db.Integer,
-        db.ForeignKey('customer.id',ondelete='RESTRICT'),
-        nullable=False
-    )
+    customer_id = db.Column(db.Integer,db.ForeignKey('customer.id',ondelete='RESTRICT'),nullable=False)
 
-    status = db.Column(
-        db.String(50),
-        default='Pending Payment'
-    )
+    status = db.Column(db.String(50),default='Pending Payment')
 
-    payment_status = db.Column(
-        db.String(50),
-        default='Unpaid'
-    )
+    payment_status = db.Column(db.String(50),default='Unpaid')
 
-    payment_reference = db.Column(
-        db.String(200),
-        nullable=True
-    )
+    payment_reference = db.Column(db.String(200),nullable=True)
 
-    date_created = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc)
-    )
+    date_created = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
-    customer = db.relationship(
-        'Customer',
-        backref=db.backref('orders', lazy=True)
-    )
+    customer = db.relationship('Customer',backref=db.backref('orders', lazy=True))
 
-    items = db.relationship(
-        'OrderItem',
-        backref='order',
-        cascade='all, delete-orphan',
-        lazy=True
-    )
+    items = db.relationship('OrderItem',backref='order',cascade='all, delete-orphan',lazy=True)
 
     @property
     def total_amount(self):
@@ -151,35 +101,14 @@ class Order(db.Model):
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    quantity = db.Column(
-        db.Integer,
-        nullable=False,
-        default=1
-    )
+    quantity = db.Column(db.Integer,nullable=False,default=1)
 
-    price_at_purchase = db.Column(
-        db.Float,
-        nullable=False
-    )
+    price_at_purchase = db.Column(db.Float,nullable=False)
 
-    date_added = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc)
-    )
+    date_added = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
-    order_id = db.Column(
-        db.Integer,
-        db.ForeignKey('order.id'),
-        nullable=False
-    )
+    order_id = db.Column(db.Integer,db.ForeignKey('order.id'),nullable=False)
 
-    product_id = db.Column(
-        db.Integer,
-        db.ForeignKey('product.id'),
-        nullable=False
-    )
+    product_id = db.Column(db.Integer,db.ForeignKey('product.id'),nullable=False)
 
-    product = db.relationship(
-        'Product',
-        backref=db.backref('order_items', lazy=True)
-    )
+    product = db.relationship('Product', backref=db.backref('order_items', lazy=True))

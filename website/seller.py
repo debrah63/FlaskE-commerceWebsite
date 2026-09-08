@@ -34,13 +34,21 @@ def add_product():
         new_product = Product()
 
         new_product.product_name = form.product_name.data
+
         new_product.description = form.description.data
+
         new_product.category = form.category.data
+
         new_product.current_price = form.current_price.data
+
         new_product.previous_price = form.previous_price.data
+
         new_product.in_stock = form.in_stock.data
+
         new_product.flash_sale = form.flash_sale.data
+
         new_product.product_picture = file_name
+
         new_product.seller_id = current_user.id
 
         try:
@@ -48,7 +56,9 @@ def add_product():
             db.session.commit()
 
             flash(f'{new_product.product_name} added successfully.', 'success')
+
             return redirect('seller.my-products')
+
         except Exception as e:
 
             db.session.rollback()
@@ -66,4 +76,5 @@ def my_products():
         return render_template('404.html')
 
     products = Product.query.filter_by(seller_id=current_user.id).order_by(Product.date_added.desc()).all()
+
     return render_template('my_products.html', products=products)

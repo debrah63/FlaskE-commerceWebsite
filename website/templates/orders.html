@@ -134,6 +134,14 @@
 
                 </h5>
 
+                {& if order.status =='Pending Pyment' %}
+                <div class="text-end mt-3">
+                    <a href="{{ url_for(('views.initiate_payment', order_id=order.id) }}" class="btn btn=primary">
+                    Complete Payment
+                    </a>
+                </div>
+
+
 
             </div>
 

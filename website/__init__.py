@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_mail import Mail
+from flask_mail import Mail, Message
 
 load_dotenv()
 
@@ -24,10 +24,28 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
+
+    app.config['PAYSTACK_PUBLIC_KEY'] = os.environ.get('PAYSTACK_PUBLIC_KEY')
+    app.config['PAYSTACK_SECRET_KEY'] = os.environ.get('PAYSTACK_SECRET_KEY')
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+
+    app.config['REQUIRE_EMAIL_VERIFICATION'] = (os.environ.get('REQUIRE_EMAIL_VERIFICATION', 'True').lower() == 'true')
 
     db.init_app(app)
     mail.init_app(app)
+
+    try:
+        with app.app_context():
+            msg = Message( 'Flask Mail Test', sender=app.config['MAIL_USERNAME'], recipients=[app.config['MAIL_USERNAME']])
+            msg.body = 'This is a test email from Flask.'
+            mail.send(msg)
+
+
+
+    except Exception as e:
+        print(type(e).__name__)
+        print(str(e))
 
     login_manager = LoginManager()
     login_manager.init_app(app)
