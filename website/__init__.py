@@ -41,8 +41,6 @@ def create_app():
             msg.body = 'This is a test email from Flask.'
             mail.send(msg)
 
-
-
     except Exception as e:
         print(type(e).__name__)
         print(str(e))

@@ -16,15 +16,23 @@
                     <th>Name</th>
                     <th>Price</th>
                     <th>In Stock</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% for product in products %}
                 <tr>
-                    <td><img src="/media/{{ product.product_picture.split('/')[-1] }}" alt="" style="height: 60px;"></td>
+                    <td><img src="/media/{{ product.product_picture }}" alt="" style="height: 60px;"></td>
                     <td>{{ product.product_name }}</td>
                     <td>GH₵ {{ product.current_price }}</td>
                     <td>{{ product.in_stock }}</td>
+                    <td>
+                        <a href="{{ url_for('seller.edit_product', product_id=product.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+
+                        <form action="{{ url_for('seller.delete_product', product_id=product.id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

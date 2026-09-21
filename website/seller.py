@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect
+from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
@@ -78,3 +78,64 @@ def my_products():
     products = Product.query.filter_by(seller_id=current_user.id).order_by(Product.date_added.desc()).all()
 
     return render_template('my_products.html', products=products)
+
+@seller.route('/edit-product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    if not seller_required():
+        return render_template('404.html')
+
+    product = db.session.get(Product, product_id)
+
+    if not product or product.seller_id != current_user.id:
+        flash('Product not found')
+        return redirect(url_for('seller.my_products'))
+
+    form = ProductForm(obj=product)
+
+    if form.validate_on_submit():
+        product.product_name = form.product_name.data
+        product.description = form.description.data
+        product.category = form.category.data
+        product.current_price = form.current_price.data
+        product.previous_price = form.previous_price.data
+        product.in_stock = form.in_stock.data
+        product.flash_sale = form.flash_sale.data
+
+        if form.product_picture.data:
+            file = form.product_picture.data
+            file_name = secure_filename(file.filename)
+            file.save(f'./media/{file_name}')
+            product.product_picture = file_name
+
+        try:
+            db.session.commit()
+            flash(f'{product.product_name} updated successfully')
+            return redirect(url_for('seller.my_products'))
+        except Exception as e:
+            db.session.rollback()
+            print(e)
+            flash('Product could not be updated')
+
+    return render_template('edit_product.html', form=form, product=product)
+
+
+@seller.route('/delete-product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    if not seller_required():
+        return render_template('404.html')
+
+    product = db.session.get(Product, product_id)
+
+    if not product or product.seller_id != current_user.id:
+        flash('Product not found')
+        return redirect(url_for('seller.my_products'))
+
+    from .models import Cart
+    Cart.query.filter_by(product_id=product_id).delete()
+
+    db.session.delete(product)
+    db.session.commit()
+    flash(f'{product.product_name} deleted')
+    return redirect(url_for('seller.my_products'))

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %} Add Product {% endblock %}
+{% block title %} Edit Product {% endblock %}
 
 {% block body %}
 
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2>Add a Product</h2>
+            <h2>Edit Product</h2>
 
             <form method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
@@ -16,16 +16,7 @@
                     {{ form.product_name.label }}
                     {{ form.product_name(class="form-control") }}
                 </div>
-
-                <div class="mb-3">
-                    {{ form.product_picture.label }}
-                    {{ form.product_picture() }}
-                    {% for error in form.product_picture.errors %}
-                        <small class="text-danger">{{ error }}</small>
-                    {% endfor %}
-                </div>
-
-
+                
                 <div class="mb-3 form-check">
                     {{ form.flash_sale(class="form-check-input") }}
                     {{ form.flash_sale.label(class="form-check-label") }}
@@ -57,7 +48,17 @@
                     {{ form.in_stock(class="form-control") }}
                 </div>
 
-                {{ form.submit(class="btn btn-primary") }}
+                <div class="mb-3">
+                    <p>Current image:</p>
+                    <img src="/media/{{ product.product_picture }}" alt="" style="height: 100px;">
+                    <p class="mt-2">Upload a new image (optional):</p>
+                    {{ form.product_picture() }}
+                    {% for error in form.product_picture.errors %}
+                        <small class="text-danger">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Update Product</button>
             </form>
         </div>
     </div>
