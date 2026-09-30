@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block body %}
+
+<div class="messages-page">
+
+    <div class="messages-header">
+    <div>
+        <h1>
+            Messages
+
+            {% if unread_count > 0 %}
+                <span class="unread-count">
+                    {{ unread_count }}
+                </span>
+            {% endif %}
+        </h1>
+
+        <p>Your conversations with buyers and sellers.</p>
+    </div>
+</div>
+    {% if conversations %}
+
+        <div class="conversation-list">
+
+            {% for conversation in conversations %}
+
+                {% if conversation.buyer_id == current_user.id %}
+                    {% set other_user = conversation.seller %}
+                {% else %}
+                    {% set other_user = conversation.buyer %}
+                {% endif %}
+
+                <a
+                    href="{{ url_for('views.chat', conversation_id=conversation.id) }}"
+                    class="conversation-card"
+                >
+
+                    <div class="conversation-avatar">
+                        {{ other_user.username[0].upper() }}
+                    </div>
+
+                    <div class="conversation-content">
+
+                        <div class="conversation-top">
+                            <strong>{{ other_user.username }}</strong>
+
+                            {% if conversation.messages %}
+                                <span>
+                                    {{ conversation.messages[-1].date_sent.strftime('%H:%M') }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if conversation.product %}
+                            <div class="conversation-product">
+                                <i class="bi bi-box-seam"></i>
+                                {{ conversation.product.product_name }}
+                            </div>
+                        {% endif %}
+
+                        {% if conversation.messages %}
+                            <p class="conversation-preview">
+                                {{ conversation.messages[-1].message }}
+                            </p>
+                        {% else %}
+                            <p class="conversation-preview">
+                                Start the conversation
+                            </p>
+                        {% endif %}
+
+                    </div>
+
+                    <i class="bi bi-chevron-right conversation-arrow"></i>
+
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="messages-empty">
+
+            <div class="messages-empty-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+
+            <h2>No messages yet</h2>
+
+            <p>
+                When you chat with a buyer or seller,
+                your conversations will appear here.
+            </p>
+
+            <a href="{{ url_for('views.home') }}">
+                Browse Marketplace
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

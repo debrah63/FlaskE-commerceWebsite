@@ -3,51 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My E-commerce Site | {% block title %} {% endblock %}</title>
+
+    <title>Vouch | {% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Vouch stylesheet -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
+
 <body>
 
+    <!-- ================= NAVBAR ================= -->
 
-    {% for message in get_flashed_messages() %}
-        <div class="flash-message">
-            <strong>{{ message }}</strong>
+    <nav class="vouch-navbar">
+
+        <div class="vouch-logo">
+            <a href="/">
+                <div class="vouch-logo-mark">V</div>
+
+                <div class="vouch-logo-text">
+                    <strong>Vouch</strong>
+                    <small>UNIVERSITY MARKETPLACE</small>
+                </div>
+            </a>
         </div>
-    {% endfor %}
 
-    <nav>
-    <a href="/">Home</a>
 
-    {% if current_user.is_authenticated %}
-        <a href="/profile/{{ current_user.id }}">Profile</a>
-        <a href="/orders">Orders</a>
-        {% if current_user.role == 'admin' %}
-            <a href="/admin-dashboard">Admin Dashboard</a>
+        <!-- Search -->
+        <div class="vouch-search">
+            <i class="bi bi-search"></i>
+            <input
+                type="text"
+                placeholder="Search for products, services, or sellers..."
+            >
+        </div>
+
+
+        <!-- Campus -->
+        <button class="campus-selector">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>GCTU</span>
+            <i class="bi bi-chevron-down"></i>
+        </button>
+
+
+        <!-- Desktop navigation -->
+        <div class="vouch-nav-actions">
+
+            <a href="/" title="Home">
+                <i class="bi bi-house"></i>
+            </a>
+
+            {% if current_user.is_authenticated %}
+
+                <a href="/orders" title="Orders">
+                    <i class="bi bi-bag"></i>
+                </a>
+            <a href="{{ url_for('views.messages') }}" title="Messages" class="nav-message-link">
+                <i class="bi bi-chat"></i>
+
+                {% if unread_count > 0 %}
+                    <span class="nav-unread-badge">
+                        {{ unread_count }}
+                    </span>
+                {% endif %}
+            </a>
+
+                <a href="/profile/{{ current_user.id }}" title="Profile">
+                    <i class="bi bi-person"></i>
+                </a>
+
+                {% if current_user.role == 'admin' %}
+                    <a href="/admin-dashboard" title="Admin Dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                    </a>
+                {% endif %}
+
+                <a href="/logout" title="Logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+
+            {% else %}
+
+                <a href="/login" class="nav-login">
+                    Login
+                </a>
+
+                <a href="/sign-up" class="nav-signup">
+                    Sign Up
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </nav>
+
+
+    <!-- ================= FLASH MESSAGES ================= -->
+
+    <div class="flash-container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% for category, message in messages %}
+
+                <div class="flash-message flash-{{ category }}"
+                     role="alert">
+
+                    {% if category == 'error' %}
+
+                        <i class="bi bi-exclamation-circle-fill"></i>
+
+                    {% elif category == 'warning' %}
+
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+
+                    {% elif category == 'info' %}
+
+                        <i class="bi bi-info-circle-fill"></i>
+
+                    {% else %}
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                    {% endif %}
+
+                    <strong>{{ message }}</strong>
+
+                    <button
+                        type="button"
+                        class="flash-close"
+                        onclick="this.parentElement.remove()"
+                        aria-label="Close notification">
+
+                        <i class="bi bi-x"></i>
+
+                    </button>
+
+                </div>
+
+            {% endfor %}
+
+        {% endwith %}
+
+    </div>
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="vouch-main">
+
+        {% block body %}
+        {% endblock %}
+
+    </main>
+
+
+    <!-- ================= MOBILE NAVIGATION ================= -->
+
+    <nav class="mobile-bottom-nav">
+
+        <a href="/" class="mobile-nav-item">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="#" class="mobile-nav-item">
+            <i class="bi bi-grid"></i>
+            <span>Categories</span>
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <a href="/add-product" class="mobile-nav-item sell-button">
+                <span>+</span>
+                <small>Sell</small>
+            </a>
+
+            <a href="{{ url_for('views.messages') }}" class="moblile-naav-item">
+                <i class="bi bi-chat"></i>
+                <span>Messages</span>
+            </a>
+
+            <a href="/profile/{{ current_user.id }}" class="mobile-nav-item">
+                <i class="bi bi-person"></i>
+                <span>Account</span>
+            </a>
+
+        {% else %}
+
+            <a href="/login" class="mobile-nav-item">
+                <i class="bi bi-chat"></i>
+                <span>Messages</span>
+            </a>
+
+            <a href="/login" class="mobile-nav-item">
+                <i class="bi bi-person"></i>
+                <span>Account</span>
+            </a>
+
         {% endif %}
-        <a href="/logout">Logout</a>
-    {% else %}
-        <a href="/sign-up">Sign Up</a>
-        <a href="/login">Login</a>
-    {% endif %}
-</nav>
 
-    {% block body %}
-    {% endblock %}
+    </nav>
 
-    <footer>
-        <p>My E-commerce Site &copy; 2026</p>
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="vouch-footer">
+
+        <div>
+            <strong>Vouch</strong>
+            <p>Buy. Sell. Connect.</p>
+        </div>
+
+        <p>
+            Vouch University Marketplace © 2026
+        </p>
+
     </footer>
+
+
+    <!-- ================= PASSWORD TOGGLE ================= -->
 
     <script>
         function togglePassword(fieldId, buttonId) {
+
             const field = document.getElementById(fieldId);
             const button = document.getElementById(buttonId);
 
             if (field.type === 'password') {
+
                 field.type = 'text';
                 button.textContent = 'Hide';
+
             } else {
+
                 field.type = 'password';
                 button.textContent = 'Show';
+
             }
         }
     </script>

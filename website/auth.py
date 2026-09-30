@@ -28,6 +28,7 @@ def sign_up():
         new_customer.username = username
         new_customer.role = role
         new_customer.password = form.password2.data
+        new_customer.campus = form.campus.data
         new_customer.is_approved = (role != 'seller')
 
         try:
@@ -36,7 +37,7 @@ def sign_up():
         except Exception as e:
             db.session.rollback()
             print(e)
-            flash('Account Not Created!! An account with this email already exists.', 'danger')
+            flash('Account could not be created. An account with this email or username may already exists.', 'error')
             return render_template('signup.html', form=form)
 
         try:
@@ -73,13 +74,13 @@ def verify_email(token):
     try:
         email = serializer.loads(token, salt='email-verification', max_age=1800)
     except Exception:
-        flash('This verification link is invalid or has expired.', 'danger')
+        flash('This verification link is invalid or has expired.', 'error')
         return redirect(url_for('auth.login'))
 
     customer = Customer.query.filter_by(email=email).first()
 
     if not customer:
-        flash('Account not found.', 'danger')
+        flash('Account not found.', 'error')
         return redirect(url_for('auth.login'))
 
     if customer.is_verified:
@@ -110,9 +111,9 @@ def login():
                 login_user(customer, remember=True)
                 return redirect('/')
             else:
-                flash('Incorrect Email or Password')
+                flash('Incorrect email or password', 'error')
         else:
-            flash('Account does not exist, please Sign Up')
+            flash('Account does not exist. Please sign up first.', 'error')
 
     return render_template('login.html', form=form)
 
@@ -133,7 +134,7 @@ def resend_verification(email):
     customer = Customer.query.filter_by(email=email).first()
 
     if not customer:
-        flash('Account not found.', 'danger')
+        flash('Account not found.', 'error')
         return redirect(url_for('auth.login'))
 
     if customer.is_verified:
@@ -150,7 +151,7 @@ def resend_verification(email):
         mail.send(msg)
 
         flash('Verification email sent. Please check your inbox.', 'success')
-        return render_template( url_for('auth.login'))
+        return redirect( url_for('auth.login'))
 
     except Exception as e:
         print(e)
@@ -204,7 +205,7 @@ def reset_password(token):
 
     except Exception:
 
-        flash('This reset link is invalid or has expired.','danger')
+        flash('This reset link is invalid or has expired.','error')
 
         return redirect(url_for('auth.forgot_password'))
 
@@ -216,7 +217,7 @@ def reset_password(token):
 
         if not customer:
 
-            flash('User not found.','danger')
+            flash('User not found.','error')
 
             return redirect(url_for('auth.login'))
 
@@ -242,14 +243,14 @@ def change_password():
     if form.validate_on_submit():
 
         if not current_user.verify_password(form.current_password.data):
-            flash('Your current password is incorrect.')
+            flash('Your current password is incorrect.', 'error')
             return render_template('change_password.html',form=form)
 
         current_user.password = form.new_password.data
 
         db.session.commit()
 
-        flash('Your password has been changed successfully.')
+        flash('Your password has been changed successfully.', 'success')
 
         return redirect(url_for('auth.profile',customer_id=current_user.id))
 
@@ -267,4 +268,18 @@ def profile(customer_id):
     bought_count = Order.query.filter_by(customer_id=current_user.id).count()
 
     return render_template('profile.html', customer=current_user, listings_count=listings_count, bought_count=bought_count)
+
+@auth.route('/request-verification', methods=['POST'])
+@login_required
+def request_verification():
+    if current_user.verification_status == 'verified':
+
+        flash('Your account is already verified.', 'info')
+        return redirect(url_for('auth.profile',customer_id=current_user.id))
+
+    current_user.verification_status = 'pending'
+    db.session.commit()
+
+    flash(' Your verification request has been submitted for review.', 'success')
+    return redirect(url_for('auth.profile',customer_id=current_user.id))
 

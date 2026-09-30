@@ -1,44 +1,234 @@
 {% extends 'base.html' %}
 
-{% block title %} Home {% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block body %}
 
-<div class="container my-5">
-    <h1>Welcome to My E-commerce Site</h1>
+<div class="vouch-home">
 
-    {% if items %}
-        <div class="row">
-            {% for item in items %}
-                <div class="col-sm-3 mb-4">
-                    <div class="card h-100">
-                        <img src="/media/{{ item.product_picture }}" class="card-img-top" alt="" style="height: 180px; object-fit: cover;">
-                        <div class="card-body">
-                            <h6 class="card-title">{{ item.product_name }}</h6>
-                            <p class="card-text text-muted small">{{ item.category }}</p>
+    <!-- ================= HERO ================= -->
 
-                            <p>
-                                <strong>GH₵ {{ item.current_price }}</strong>
-                                {% if item.previous_price %}
-                                    <small class="text-muted"><s>GH₵ {{ item.previous_price }}</s></small>
-                                {% endif %}
-                            </p>
+    <section class="vouch-hero">
 
-                            <p class="small text-muted">Sold by {{ item.seller.username }}</p>
+        <div class="hero-content">
 
-                            {% if item.in_stock > 0 %}
-                                <a href="{{ url_for('views.add_to_cart', item_id=item.id) }}" class="btn btn-primary btn-sm">Add to Cart</a>
-                            {% else %}
-                                <span class="badge bg-secondary">Out of Stock</span>
-                            {% endif %}
-                        </div>
-                    </div>
+            <div class="hero-brand">
+                <div class="hero-logo-mark">V</div>
+
+                <div>
+                    <strong>Vouch</strong>
+                    <small>UNIVERSITY MARKETPLACE</small>
                 </div>
-            {% endfor %}
+            </div>
+
+            <h1>
+                Buy.
+                <span>Sell.</span>
+                Connect.
+            </h1>
+
+            <p>
+                Everything you need for campus, all in one place.
+            </p>
+
+            <div class="hero-buttons">
+
+                <a href="#trending" class="hero-primary-btn">
+                    Explore Marketplace
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+                {% if current_user.is_authenticated %}
+                    <a href="/add-product" class="hero-secondary-btn">
+                        Sell an Item
+                    </a>
+                {% else %}
+                    <a href="/login" class="hero-secondary-btn">
+                        Sell an Item
+                    </a>
+                {% endif %}
+
+            </div>
+
+            <!-- Campus pills -->
+
+            <div class="hero-campuses">
+
+                <span class="available-text">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Available on:
+                </span>
+
+                <span class="campus-pill active">GCTU</span>
+                <span class="campus-pill">KNUST</span>
+                <span class="campus-pill">LEGON</span>
+                <span class="campus-pill">UCC</span>
+                <span class="campus-pill">UEW</span>
+                <span class="campus-pill">GIMPA</span>
+                <span class="campus-pill">Central</span>
+
+            </div>
+
         </div>
-    {% else %}
-        <p>No products available yet.</p>
-    {% endif %}
+
+        <div class="hero-decoration">
+            <i class="bi bi-bag-fill"></i>
+        </div>
+
+    </section>
+
+
+    <!-- ================= TRENDING ================= -->
+
+    <section class="trending-section" id="trending">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>
+                    Trending Near You
+                    <span>🔥</span>
+                </h2>
+
+                <p>Popular products from students around you.</p>
+            </div>
+
+            <a href="#trending" class="view-all">
+                View all
+                <i class="bi bi-arrow-right"></i>
+            </a>
+
+        </div>
+
+
+        {% if items %}
+
+            <div class="vouch-product-grid">
+
+                {% for item in items %}
+
+                    <div class="vouch-product-card">
+
+                        <!-- Product image -->
+
+                        <div class="product-image-container">
+
+                        <a href="{{ url_for('views.product_detail', product_id=item.id) }}">
+                            <img
+                                src="/media/{{ item.product_picture }}"
+                                alt="{{ item.product_name }}"
+                                class="product-image"
+                            >
+                        </a>
+                            <button class="favorite-button">
+                                <i class="bi bi-heart"></i>
+                            </button>
+
+                        </div>
+
+
+                        <!-- Product information -->
+
+                        <div class="product-information">
+
+                            {% if item.seller.verification_status == 'verified' %}
+
+                                <div class="verified-badge">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Verified Student
+                                </div>
+
+                            {% endif %}
+
+
+                            <h3>
+                                <a href="{{ url_for('views.product_detail', product_id=item.id) }}" class="product-title-link" >
+                                {{ item.product_name }}
+                                </a>
+                            </h3>
+
+
+                            <div class="product-price">
+
+                                GH₵ {{ "{:,.2f}".format(item.current_price) }}
+
+                                {% if item.previous_price %}
+
+                                    <span class="previous-price">
+                                        GH₵ {{ "{:,.2f}".format(item.previous_price) }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="product-campus">
+
+                                <i class="bi bi-geo-alt"></i>
+                                {{ item.seller.campus }}
+
+                            </div>
+
+
+                            <div class="product-actions">
+
+                                {% if item.in_stock > 0 %}
+
+                                    <a
+                                        href="{{ url_for('views.add_to_cart', item_id=item.id) }}"
+                                        class="add-cart-btn"
+                                    >
+                                        <i class="bi bi-cart-plus"></i>
+                                        Add to Cart
+                                    </a>
+
+                                {% else %}
+
+                                    <span class="out-of-stock">
+                                        Out of Stock
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-products">
+
+                <i class="bi bi-box-seam"></i>
+
+                <h3>No products available yet.</h3>
+
+                <p>
+                    Be the first student to list something on Vouch.
+                </p>
+
+                {% if current_user.is_authenticated %}
+                    <a href="/add-product" class="hero-primary-btn">
+                        Sell an Item
+                    </a>
+                {% else %}
+                    <a href="/sign-up" class="hero-primary-btn">
+                        Join Vouch
+                    </a>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
 </div>
 
 {% endblock %}

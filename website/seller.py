@@ -39,6 +39,12 @@ def add_product():
 
         new_product.category = form.category.data
 
+        new_product.product_type = form.product_type.data
+
+        new_product.brand = form.brand.data
+
+        new_product.condition = form.condition.data
+
         new_product.current_price = form.current_price.data
 
         new_product.previous_price = form.previous_price.data

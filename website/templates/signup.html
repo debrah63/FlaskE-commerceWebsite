@@ -1,63 +1,412 @@
 {% extends 'base.html' %}
 
-{% block title %} Sign Up {% endblock %}
+{% block title %}Create Your Vouch Account{% endblock %}
 
 {% block body %}
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="text-center mb-4" style="color: white;"> Sign Up </h2>
+<div class="auth-page">
+
+    <!-- LEFT SIDE -->
+    <section class="auth-showcase">
+
+        <div class="auth-showcase-content">
+
+            <a href="{{ url_for('views.home') }}" class="auth-logo">
+                <span class="auth-logo-mark">✓</span>
+                <span>VOUCH</span>
+            </a>
+
+            <div class="auth-showcase-text">
+
+                <p class="auth-eyebrow">WELCOME TO VOUCH</p>
+
+                <h1>
+                    Same Campus.<br>
+                    <span>Bigger Opportunities.</span>
+                </h1>
+
+                <p class="auth-description">
+                    Buy, sell, discover businesses and connect with people
+                    making campus life easier.
+                </p>
+
+                <div class="auth-benefits">
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-shop"></i>
+                        </div>
+
+                        <div>
+                            <h3>Buy & Sell</h3>
+                            <p>Find products and sell what you no longer need.</p>
+                        </div>
+                    </div>
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+
+                        <div>
+                            <h3>Connect</h3>
+                            <p>Discover students, vendors and campus businesses.</p>
+                        </div>
+                    </div>
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+
+                        <div>
+                            <h3>Grow</h3>
+                            <p>Build your presence and reach more people on campus.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT SIDE -->
+    <section class="auth-form-section">
+
+        <div class="auth-form-container">
+
+            <div class="auth-mobile-logo">
+                <a href="{{ url_for('views.home') }}" class="auth-logo">
+                    <span class="auth-logo-mark">✓</span>
+                    <span>VOUCH</span>
+                </a>
+            </div>
+
+            <div class="auth-heading">
+                <p class="auth-eyebrow">GET STARTED</p>
+
+                <h2>Create your account</h2>
+
+                <p>
+                    Join your campus community and start discovering what Vouch has to offer.
+                </p>
+            </div>
+
+
+            <!-- ACCOUNT TYPE - UI FOR NOW -->
+            <div class="account-type-section">
+
+                <label class="auth-label">Join Vouch as</label>
+
+                <div class="account-type-options">
+
+                    <button type="button"
+                            class="account-type-option active"
+                            data-account-type="student">
+
+                        <i class="bi bi-mortarboard"></i>
+
+                        <span>
+                            <strong>Student</strong>
+                            <small>Buy, sell & discover</small>
+                        </span>
+
+                    </button>
+
+                    <button type="button"
+                            class="account-type-option"
+                            data-account-type="business">
+
+                        <i class="bi bi-shop"></i>
+
+                        <span>
+                            <strong>Business</strong>
+                            <small>Sell products & services</small>
+                        </span>
+
+                    </button>
+
+                    <button type="button"
+                            class="account-type-option"
+                            data-account-type="campus-rep">
+
+                        <i class="bi bi-people"></i>
+
+                        <span>
+                            <strong>Campus Rep</strong>
+                            <small>Represent your campus</small>
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </div>
+
 
             <form method="POST" novalidate>
+
                 {{ form.hidden_tag() }}
 
-                <div class="mb-3">
-                    {{ form.email.label }}
-                    {{ form.email(class="form-control") }}
-                </div>
 
-                <div class="mb-3">
-                    {{ form.username.label }}
-                    {{ form.username(class="form-control") }}
-                </div>
+                <!-- EMAIL -->
+                <div class="auth-field">
 
-                <div class="mb-3">
-                    {{ form.role.label }}
-                    {% for subfield in form.role %}
-                        <div class="form-check">
-                            {{ subfield(class="form-check-input") }}
-                            {{ subfield.label(class="form-check-label") }}
-                        </div>
-                    {% endfor %}
-                </div>
+                    {{ form.email.label(class="auth-label") }}
 
-                <div class="mb-3">
-                    {{ form.password1.label }}
-                    <div style="display: flex; gap: 8px;">
-                        {{ form.password1(class="form-control", id="password1-field") }}
-                        <button type="button" id="toggle-password1" onclick="togglePassword('password1-field', 'toggle-password1')">Show</button>
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-envelope auth-input-icon"></i>
+
+                        {{ form.email(
+                            class="auth-input" + (" auth-input-error" if form.email.errors else ""),
+                            placeholder="you@example.com",
+                            aria_invalid=("true" if form.email.errors else "false")
+                        ) }}
+
                     </div>
+
+                    {% for error in form.email.errors %}
+                        <small class="auth-error">{{ error }}</small>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- USERNAME -->
+                <div class="auth-field">
+
+                    {{ form.username.label(class="auth-label") }}
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-person auth-input-icon"></i>
+
+                        {{ form.username(
+                            class="auth-input",
+                            placeholder="Choose a username",
+                            autocomplete="username"
+                        ) }}
+
+                    </div>
+
+                    {% for error in form.username.errors %}
+                        <small class="auth-error">{{ error }}</small>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- CAMPUS -->
+                <div class="auth-field">
+
+                    {{ form.campus.label(class="auth-label") }}
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-building auth-input-icon"></i>
+
+                        {{ form.campus(
+                            class="auth-input auth-select"
+                        ) }}
+
+                    </div>
+
+                    {% for error in form.campus.errors %}
+                        <small class="auth-error">{{ error }}</small>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ROLE -->
+                <div class="auth-field">
+
+                    {{ form.role.label(class="auth-label") }}
+
+                    <div class="auth-role-options">
+
+                        {% for subfield in form.role %}
+
+                            <label class="auth-role-option">
+
+                                {{ subfield(class="auth-role-radio") }}
+
+                                <span>{{ subfield.label.text }}</span>
+
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% for error in form.role.errors %}
+                        <small class="auth-error">{{ error }}</small>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- PASSWORD -->
+                <div class="auth-field">
+
+                    {{ form.password1.label(class="auth-label") }}
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-lock auth-input-icon"></i>
+
+                        {{ form.password1(
+                            class="auth-input auth-password-input" + ("auth-input-error" if form.password1.errors else ""),
+                            id="password1-field",
+                            placeholder="At least 8 characters",
+                            aria_invalid=("true" if form.password1.errors else "false")
+                        ) }}
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="toggle-password1"
+                            onclick="togglePassword('password1-field', 'toggle-password1')"
+                        >
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                    </div>
+
                     {% for error in form.password1.errors %}
-                        <small class="text-danger">{{ error }}</small>
+                        <small class="auth-error">{{ error }}</small>
                     {% endfor %}
+
                 </div>
 
-                <div class="mb-3">
-                    {{ form.password2.label }}
-                    <div style="display: flex; gap: 8px;">
-                        {{ form.password2(class="form-control", id="password2-field") }}
-                        <button type="button" id="toggle-password2" onclick="togglePassword('password2-field', 'toggle-password2')">Show</button>
+
+                <!-- CONFIRM PASSWORD -->
+                <div class="auth-field">
+
+                    {{ form.password2.label(class="auth-label") }}
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-lock auth-input-icon"></i>
+
+                        {{ form.password2(
+                            class="auth-input auth-password-input" +("auth-input-error" if form.password1.errors else ""),
+                            id="password2-field",
+                            placeholder="Confirm your password",
+                            aria_invalid=("true" if form.password2.errors else "false")
+                        ) }}
+
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="toggle-password2"
+                            onclick="togglePassword('password2-field', 'toggle-password2')"
+                        >
+                            <i class="bi bi-eye"></i>
+                        </button>
+
                     </div>
+
                     {% for error in form.password2.errors %}
-                        <small class="text-danger">{{ error }}</small>
+                        <small class="auth-error">{{ error }}</small>
                     {% endfor %}
+
                 </div>
 
-                {{ form.submit(class="btn btn-primary w-100") }}
+
+                <!-- TERMS -->
+                <div class="auth-terms">
+
+                    <input type="checkbox" id="terms" required>
+
+                    <label for="terms">
+                        I agree to Vouch's
+                        <a href="#">Terms & Conditions</a>
+                        and
+                        <a href="#">Privacy Policy</a>.
+                    </label>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+                {{ form.submit(
+                    class="auth-submit",
+                    value="Create Account"
+                ) }}
+
             </form>
+
+
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+
+            <div class="social-auth-buttons">
+
+                <button type="button" class="social-auth-button">
+                    <i class="bi bi-google"></i>
+                    Google
+                </button>
+
+                <button type="button" class="social-auth-button">
+                    <i class="bi bi-apple"></i>
+                    Apple
+                </button>
+
+            </div>
+
+
+            <p class="auth-switch">
+
+                Already have an account?
+
+                <a href="{{ url_for('auth.login') }}">
+                    Log in
+                </a>
+
+            </p>
+
+
+            <p class="auth-security">
+
+                <i class="bi bi-shield-check"></i>
+
+                Your information is protected by Vouch.
+
+            </p>
+
         </div>
-    </div>
+
+    </section>
+
 </div>
+
+
+<script>
+
+document.querySelectorAll('.account-type-option').forEach(function(button) {
+
+    button.addEventListener('click', function() {
+
+        document.querySelectorAll('.account-type-option')
+            .forEach(function(option) {
+                option.classList.remove('active');
+            });
+
+        this.classList.add('active');
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

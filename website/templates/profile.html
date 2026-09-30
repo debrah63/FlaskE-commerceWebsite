@@ -18,6 +18,30 @@
 
                     <h4>{{ customer.username }}</h4>
                     <p class="text-muted">{{ customer.email }}</p>
+                    {% if customer.verification_status == 'verified' %}
+
+                    <div class="verification-status verified">
+                        <i class="bi bi-patch-check-fill"></i>
+                        Verified Student
+                    </div>
+
+                {% elif customer.verification_status == 'pending' %}
+
+                    <div class="verification-status pending">
+                        <i class="bi bi-hourglass-split"></i>
+                        Verification Pending
+                    </div>
+
+                {% else %}
+
+                    <form method="POST" action="{{ url_for('auth.request_verification') }}">
+                        <button type="submit" class="verification-request-button">
+                            <i class="bi bi-patch-check"></i>
+                            Request Verification
+                        </button>
+                    </form>
+
+                {% endif %}
                     <p class="text-muted small">Joined {{ customer.date_joined.strftime('%d %b %Y') }}</p>
 
                     <div class="row mt-4">
@@ -45,8 +69,8 @@
                 </a>
                 {% endif %}
 
-                <a href="{{ url_for('auth.change_password') }}" class="list-group-item list-group-item-action ">
-                    Change Password
+                <a href="#" class="list-group-item list-item-action disabled">
+                    Change Password (Coming soon)
                 </a>
 
                 <a href="{{ url_for('auth.log_out') }}" class="list-group-item list-group-item-action text-danger">

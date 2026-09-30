@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, EmailField, SubmitField, RadioField, TextAreaField,BooleanField,FloatField, IntegerField)
-from wtforms.validators import DataRequired, length, EqualTo,NumberRange
+from wtforms import (StringField, PasswordField, EmailField, SubmitField, RadioField, TextAreaField, BooleanField, FloatField, IntegerField, SelectField)
+from wtforms.validators import DataRequired, length, EqualTo,NumberRange, Optional
 from flask_wtf. file import FileField, FileRequired, FileAllowed
 
 
@@ -11,6 +11,10 @@ class ProductForm(FlaskForm):
     product_name = StringField('Product Name', validators=[DataRequired(), length(min=5, max=100)])
     description = TextAreaField('Description', validators=[DataRequired(), length(min=10, max=1000)])
     category = StringField('Category', validators=[DataRequired(), length(min=5, max=100)])
+    product_type = StringField('Product Type', validators=[DataRequired(), length(min=5, max=100)])
+    brand = StringField('Brand', validators=[DataRequired(), Optional(), length(min=5, max=100)])
+    condition = StringField('Condition', choices=[('New', 'New'), ('Like New','Like New'), ('Good','Good'),('Fair', 'Fair'),('Used','Used')], validators=[DataRequired(), length(min=5, max=100)])
+
     current_price = FloatField('Current Price', validators=[DataRequired(), NumberRange(min=0.01)])
     previous_price = FloatField('Previous Price', validators=[DataRequired(), NumberRange(min=0)])
     in_stock = IntegerField('In stock', validators=[DataRequired(), NumberRange(min=0)])
@@ -21,7 +25,9 @@ class ProductForm(FlaskForm):
 
 class SignUpForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired()])
-    username = StringField('Username', validators=[DataRequired(), length(min=5, max=30)])
+    username = StringField('Username', validators=[DataRequired(), length(min=5, max=50)])
+    campus = SelectField('Campus / School', choices=[('GCTU', 'Ghana Communication Technology University (GCTU)'), ('Legon', 'University of Ghana(Legon)'), ('KNUST', 'KNUST'), ('UCC', 'University Cape Coast (UCC'), ('GIMPA', 'GIMPA'), ('UEW', 'University of Education, Winneba (UEW)')], validators=[DataRequired()])
+
     role = RadioField('I want to', choices=[('buyer', 'Buy product'), ('seller', 'Sell product')], default='buyer', validators=[DataRequired()])
     password1 = PasswordField('Enter Your Password', validators=[DataRequired(), length(min=8)])
     password2 = PasswordField('Confirm Your Password', validators=[DataRequired(), length(min=8), EqualTo( 'password1', message= 'Passwords must match')])

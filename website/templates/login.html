@@ -1,41 +1,368 @@
 {% extends 'base.html' %}
 
-{% block title %} Login {% endblock %}
+{% block title %}Login | Vouch{% endblock %}
 
 {% block body %}
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="text-center mb-4" style="color: white;">Login</h2>
+<div class="auth-page">
 
-            <form method="POST" novalidate>
+    <!-- LEFT: VOUCH SHOWCASE -->
+    <section class="auth-showcase">
+
+        <div class="auth-showcase-content">
+
+            <a href="{{ url_for('views.home') }}" class="auth-logo">
+                <span class="auth-logo-mark">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span class="auth-logo-check">✓</span>
+                </span>
+
+                <span class="auth-logo-text">
+                    <strong>VOUCH</strong>
+                    <small>MARKET</small>
+                </span>
+            </a>
+
+            <div class="auth-showcase-text">
+
+                <span class="auth-eyebrow">
+                    WELCOME BACK
+                </span>
+
+                <h1>
+                    Your campus.<br>
+                    Your marketplace.
+                </h1>
+
+                <p class="auth-description">
+                    Buy, sell and connect with people and businesses
+                    around your campus — all in one place.
+                </p>
+
+                <div class="auth-benefits">
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-shop"></i>
+                        </div>
+
+                        <div>
+                            <strong>Discover</strong>
+                            <span>Find products, services and campus businesses.</span>
+                        </div>
+                    </div>
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+
+                        <div>
+                            <strong>Connect</strong>
+                            <span>Chat directly without sharing your phone number.</span>
+                        </div>
+                    </div>
+
+                    <div class="auth-benefit">
+                        <div class="auth-benefit-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+
+                        <div>
+                            <strong>Trade with confidence</strong>
+                            <span>Build trust through verified accounts and profiles.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT: LOGIN FORM -->
+    <section class="auth-form-section">
+
+        <div class="auth-form-container">
+
+            <!-- Mobile logo -->
+            <a href="{{ url_for('views.home') }}" class="auth-mobile-logo">
+
+                <span class="auth-logo-mark">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    <span class="auth-logo-check">✓</span>
+                </span>
+
+                <span class="auth-logo-text">
+                    <strong>VOUCH</strong>
+                    <small>MARKET</small>
+                </span>
+
+            </a>
+
+
+            <div class="auth-heading">
+
+                <span class="auth-eyebrow">
+                    WELCOME BACK
+                </span>
+
+                <h2>Log in to Vouch</h2>
+
+                <p>
+                    Continue where you left off.
+                </p>
+
+            </div>
+
+
+            <!-- LOGIN FORM -->
+            <form method="POST"
+                  novalidate
+                  id="login-form"
+                  class="auth-form">
+
                 {{ form.hidden_tag() }}
 
-                <div class="mb-3">
-                    {{ form.email.label }}
-                    {{ form.email(class="form-control") }}
-                </div>
 
-                <div class="mb-3">
-                    {{ form.password.label }}
-                    <div style="display: flex; gap: 8px;">
-                        {{ form.password(class="form-control", id="password-field") }}
-                        <button type="button" id="toggle-password" onclick="togglePassword('password-field', 'toggle-password')">Show</button>
+                <!-- EMAIL -->
+                <div class="auth-field">
+
+                    {{ form.email.label(class="auth-label") }}
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-envelope auth-input-icon"></i>
+
+                        {{ form.email(
+                            class="auth-input",
+                            placeholder="you@example.com",
+                            autocomplete="email",
+                            aria_invalid="true" if form.email.errors else "false"
+                        ) }}
+
                     </div>
+
+                    {% for error in form.email.errors %}
+
+                        <div class="auth-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
                 </div>
 
-                {{ form.submit(class="btn btn-primary w-100") }}
+
+                <!-- PASSWORD -->
+                <div class="auth-field">
+
+                    <div class="auth-label-row">
+
+                        {{ form.password.label(class="auth-label") }}
+
+                        <a href="{{ url_for('auth.forgot_password') }}"
+                           class="auth-forgot">
+                            Forgot password?
+                        </a>
+
+                    </div>
+
+                    <div class="auth-input-wrapper">
+
+                        <i class="bi bi-lock auth-input-icon"></i>
+
+                        {{ form.password(
+                            class="auth-input auth-password-input",
+                            id="login-password-field",
+                            placeholder="Enter your password",
+                            autocomplete="current-password"
+                        ) }}
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="login-password-toggle"
+                            aria-label="Show password"
+                            onclick="toggleLoginPassword()">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                    {% for error in form.password.errors %}
+
+                        <div class="auth-error">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ error }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- REMEMBER ME -->
+                <div class="auth-login-options">
+
+                    <label class="auth-checkbox">
+
+                        <input type="checkbox" name="remember">
+
+                        <span class="auth-checkbox-box"></span>
+
+                        <span>Remember me</span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+                {{ form.submit(
+                    class="auth-submit",
+                    value="Log In",
+                    id="login-submit"
+                ) }}
+
+
             </form>
 
-            <p class="text-center mt-3">
-                <a href="/sign-up">Don't have an account? Sign Up</a>
-            </p>
-            <p class="text-center">
-                <a href="/forgot-password">Forgot your password?</a>
-            </p>
+
+            <!-- DIVIDER -->
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+
+            <!-- SOCIAL LOGIN -->
+            <div class="social-auth-buttons">
+
+                <button type="button"
+                        class="social-auth-button">
+
+                    <strong>G</strong>
+                    <span>Google</span>
+
+                </button>
+
+                <button type="button"
+                        class="social-auth-button">
+
+                    <i class="bi bi-apple"></i>
+                    <span>Apple</span>
+
+                </button>
+
+            </div>
+
+
+            <!-- SIGN UP -->
+            <div class="auth-switch">
+
+                <span>Don't have an account?</span>
+
+                <a href="{{ url_for('auth.sign_up') }}">
+                    Create one
+                </a>
+
+            </div>
+
+
+            <!-- SECURITY -->
+            <div class="auth-security">
+
+                <i class="bi bi-shield-lock"></i>
+
+                <span>
+                    Your account information is protected.
+                </span>
+
+            </div>
+
         </div>
-    </div>
+
+    </section>
+
 </div>
+
+
+<script>
+
+function toggleLoginPassword() {
+
+    const passwordField =
+        document.getElementById("login-password-field");
+
+    const toggleButton =
+        document.getElementById("login-password-toggle");
+
+    const icon =
+        toggleButton.querySelector("i");
+
+
+    if (passwordField.type === "password") {
+
+        passwordField.type = "text";
+
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Hide password"
+        );
+
+    } else {
+
+        passwordField.type = "password";
+
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Show password"
+        );
+
+    }
+
+}
+
+
+/* Login loading state */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const loginForm =
+        document.getElementById("login-form");
+
+    const submitButton =
+        document.getElementById("login-submit");
+
+
+    if (loginForm && submitButton) {
+
+        loginForm.addEventListener("submit", function () {
+
+            submitButton.disabled = true;
+
+            submitButton.value = "Logging in...";
+
+            submitButton.classList.add("auth-submit-loading");
+
+        });
+
+    }
+
+});
+
+</script>
 
 {% endblock %}

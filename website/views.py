@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, request, url_for,
 from flask_login import login_required, current_user
 import requests
 
-from .models import Product, Cart, Order, OrderItem
+from .models import Product, Cart, Order, OrderItem, Conversation, Message
 from . import db
 
 
@@ -15,6 +15,139 @@ SHIPPING_FEE = 50
 def home():
     items = Product.query.order_by(Product.date_added.desc()).all()
     return render_template('home.html', items=items)
+
+@views.route('/product/<int:product_id>')
+def product_detail(product_id):
+    product = db.session.get(Product, product_id)
+
+    if not product:
+        flash('Product not found.')
+        return redirect(url_for('views.home'))
+
+    return render_template('product_detail.html', product=product)
+
+@views.route('/chat/<int:product_id>')
+@login_required
+def start_chat(product_id):
+    product = db.session.get(Product, product_id)
+
+    if not product:
+        flash('Product not found')
+        return redirect(url_for('views.home'))
+
+    # You cannot chat with yourself
+    if product.seller_id == current_user.id:
+        flash('You cannot start a chat with yourself.')
+        return redirect(
+            url_for('views.product_detail', product_id=product.id)
+        )
+
+    # Check whether a conversation already exists
+    conversation = Conversation.query.filter(
+        Conversation.product_id == product.id,
+        Conversation.buyer_id == current_user.id,
+        Conversation.seller_id == product.seller_id
+    ).first()
+
+    # Create one if it doesn't exist
+    if not conversation:
+        conversation = Conversation(
+            buyer_id=current_user.id,
+            seller_id=product.seller_id,
+            product_id=product.id
+        )
+
+        db.session.add(conversation)
+        db.session.commit()
+
+    return redirect(
+        url_for(
+            'views.chat',
+            conversation_id=conversation.id
+        )
+    )
+
+
+@views.route('/chat/<int:conversation_id>/messages', methods=['GET', 'POST'])
+@login_required
+def chat(conversation_id):
+
+    conversation = db.session.get(Conversation, conversation_id)
+
+    if not conversation:
+        flash('Conversation not found')
+        return redirect(url_for('views.home'))
+
+    # Only the buyer or seller can access this conversation
+    if current_user.id not in [
+        conversation.buyer_id,
+        conversation.seller_id
+    ]:
+        return render_template('404.html')
+
+
+    # Mark messages from the other person as read
+    Message.query.filter(
+        Message.conversation_id == conversation.id,
+        Message.sender_id != current_user.id,
+        Message.is_read == False
+    ).update(
+        {'is_read': True},
+        synchronize_session=False
+    )
+
+    db.session.commit()
+
+    if request.method == 'POST':
+
+        message_text = request.form.get('message', '').strip()
+
+        if message_text:
+            new_message = Message(
+                conversation_id=conversation.id,
+                sender_id=current_user.id,
+                message=message_text,
+                is_read=False
+            )
+
+            db.session.add(new_message)
+            db.session.commit()
+
+    messages = Message.query.filter_by(
+        conversation_id=conversation.id
+    ).order_by(Message.date_sent.asc()).all()
+
+    return render_template(
+        'chat.html',
+        conversation=conversation,
+        messages=messages
+    )
+
+@views.route('/messages')
+@login_required
+def messages():
+    conversations = Conversation.query.filter(
+        (Conversation.buyer_id == current_user.id) |
+        (Conversation.seller_id == current_user.id)
+    ).order_by(Conversation.date_created.desc()).all()
+
+    unread_count = Message.query.filter(
+        Message.sender_id != current_user.id,
+        Message.is_read == False,
+        Message.conversation_id.in_(
+            db.session.query(Conversation.id).filter(
+                (Conversation.buyer_id == current_user.id) |
+                (Conversation.seller_id == current_user.id)
+            )
+        )
+    ).count()
+
+    return render_template(
+        'messages.html',
+        conversations=conversations,
+        unread_count=unread_count
+    )
+
 
 @views.route('/profile')
 @login_required

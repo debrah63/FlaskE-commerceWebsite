@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Verification Requests{% endblock %}
+
+{% block body %}
+
+<div class="admin-dashboard">
+
+    <!-- Header -->
+    <div class="admin-dashboard-header">
+
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+
+            <h1>Verification Requests</h1>
+
+            <p>
+                Review students requesting a Vouch Verified badge.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="admin-card-button">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Requests -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+                <h2>Student Verification</h2>
+
+                <p>
+                    {% if customers %}
+                        {{ customers|length }}
+                        verification request{% if customers|length != 1 %}s{% endif %}
+                        waiting for review.
+                    {% else %}
+                        No verification requests are currently waiting.
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if customers %}
+
+            <div class="admin-verification-list">
+
+                {% for customer in customers %}
+
+                    <div class="admin-verification-row">
+
+                        <!-- Avatar -->
+                        <div class="admin-profile-avatar">
+                            {{ customer.username[0]|upper }}
+                        </div>
+
+
+                        <!-- Student information -->
+                        <div class="admin-verification-info">
+
+                            <strong>
+                                {{ customer.username }}
+                            </strong>
+
+                            <span>
+                                <i class="bi bi-envelope"></i>
+                                {{ customer.email }}
+                            </span>
+
+                            {% if customer.campus %}
+                                <small>
+                                    <i class="bi bi-mortarboard-fill"></i>
+                                    {{ customer.campus }}
+                                </small>
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="admin-verification-status">
+                            <i class="bi bi-hourglass-split"></i>
+                            Pending Review
+                        </div>
+
+
+                        <!-- Actions -->
+                        <div class="admin-verification-actions">
+
+                            <a
+                                href="{{ url_for('admin.approve_verification', customer_id=customer.id) }}"
+                                class="admin-approve-button"
+                            >
+                                <i class="bi bi-check-lg"></i>
+                                Approve
+                            </a>
+
+                            <a
+                                href="{{ url_for('admin.reject_verification', customer_id=customer.id) }}"
+                                class="admin-reject-button"
+                            >
+                                <i class="bi bi-x-lg"></i>
+                                Reject
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty State -->
+            <div class="empty-products">
+
+                <i class="bi bi-patch-check"></i>
+
+                <h3>No pending verification requests</h3>
+
+                <p>
+                    Students who request a Vouch Verified badge will appear here.
+                </p>
+
+                <a href="{{ url_for('admin.admin_dashboard') }}"
+                   class="admin-card-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

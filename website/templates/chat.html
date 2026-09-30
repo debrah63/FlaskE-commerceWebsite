@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat{% endblock %}
+
+{% block body %}
+
+<div class="chat-page">
+
+    <!-- HEADER -->
+    <div class="chat-header">
+
+        <a
+            href="{{ url_for('views.product_detail', product_id=conversation.product.id) }}"
+            class="chat-back"
+        >
+            <i class="bi bi-arrow-left"></i>
+        </a>
+
+        <div class="chat-seller-avatar">
+            {{ conversation.seller.username[0].upper() }}
+        </div>
+
+        <div class="chat-seller-info">
+            <strong>{{ conversation.seller.username }}</strong>
+
+            {% if conversation.seller.campus %}
+                <span>
+                    <i class="bi bi-mortarboard-fill"></i>
+                    {{ conversation.seller.campus }}
+                </span>
+            {% endif %}
+        </div>
+
+    </div>
+
+
+    <!-- PRODUCT CONTEXT -->
+    {% if conversation.product %}
+
+        <a
+            href="{{ url_for('views.product_detail', product_id=conversation.product.id) }}"
+            class="chat-product-card"
+        >
+
+            <img
+                src="/media/{{ conversation.product.product_picture }}"
+                alt="{{ conversation.product.product_name }}"
+            >
+
+            <div>
+                <strong>{{ conversation.product.product_name }}</strong>
+
+                <span>
+                    GH₵ {{ "{:,.2f}".format(conversation.product.current_price) }}
+                </span>
+            </div>
+
+        </a>
+
+    {% endif %}
+
+
+    <!-- MESSAGES -->
+    <div class="chat-messages">
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                {% if message.sender_id == current_user.id %}
+
+                    <div class="message-row message-row-sent">
+
+                        <div class="message-bubble message-sent">
+                            {{ message.message }}
+                            <small>
+                                {{ message.date_sent.strftime('%H:%M') }}
+                            </small>
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="message-row message-row-received">
+
+                        <div class="message-bubble message-received">
+                            {{ message.message }}
+                            <small>
+                                {{ message.date_sent.strftime('%H:%M') }}
+                            </small>
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-chat">
+
+                <i class="bi bi-chat-dots"></i>
+
+                <h3>Start the conversation</h3>
+
+                <p>
+                    Ask the seller about the product, condition,
+                    availability, or anything else you'd like to know.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- MESSAGE INPUT -->
+    <form
+        method="POST"
+        class="chat-input-area"
+    >
+
+        <input
+            type="text"
+            name="message"
+            placeholder="Write a message..."
+            autocomplete="off"
+            required
+        >
+
+        <button type="submit">
+            <i class="bi bi-send-fill"></i>
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

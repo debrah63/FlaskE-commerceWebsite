@@ -1,0 +1,171 @@
+<div class="product-detail-page">
+
+    <a href="{{ url_for('views.home') }}" class="back-to-shop">
+        <i class="bi bi-arrow-left"></i>
+        Back to Marketplace
+    </a>
+
+    <div class="product-detail-layout">
+
+        <!-- PRODUCT IMAGE -->
+        <div class="product-detail-image-section">
+
+            <div class="product-detail-image">
+                <img
+                    src="/media/{{ product.product_picture }}"
+                    alt="{{ product.product_name }}"
+                >
+            </div>
+
+        </div>
+
+
+        <!-- PRODUCT INFORMATION -->
+        <div class="product-detail-information">
+
+            {% if product.seller.verification_status == 'verified' %}
+                <div class="detail-verified-badge">
+                    <i class="bi bi-patch-check-fill"></i>
+                    Verified Student
+                </div>
+            {% endif %}
+
+            <h1>{{ product.product_name }}</h1>
+
+            <div class="detail-price">
+                GH₵ {{ "{:,.2f}".format(product.current_price) }}
+
+                {% if product.previous_price %}
+                    <span>
+                        GH₵ {{ "{:,.2f}".format(product.previous_price) }}
+                    </span>
+                {% endif %}
+            </div>
+
+
+            <!-- CAMPUS + DATE -->
+            <div class="product-meta">
+
+                {% if product.seller.campus %}
+                    <span>
+                        <i class="bi bi-mortarboard-fill"></i>
+                        {{ product.seller.campus }}
+                    </span>
+                {% endif %}
+
+                <span>
+                    <i class="bi bi-clock"></i>
+                    {{ product.date_added.strftime('%d %b %Y') }}
+                </span>
+
+            </div>
+
+
+            <!-- DESCRIPTION -->
+            <div class="product-description">
+
+                <h3>Description</h3>
+
+                <p>
+                    {{ product.description }}
+                </p>
+
+            </div>
+
+
+            <!-- PRODUCT DETAILS -->
+            <div class="product-attributes">
+
+                <h3>Product Details</h3>
+
+                <div class="attribute-grid">
+
+                    {% if product.condition %}
+                        <div class="attribute-item">
+                            <span>Condition</span>
+                            <strong>{{ product.condition }}</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if product.brand %}
+                        <div class="attribute-item">
+                            <span>Brand</span>
+                            <strong>{{ product.brand }}</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if product.product_type %}
+                        <div class="attribute-item">
+                            <span>Type</span>
+                            <strong>{{ product.product_type }}</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if product.category %}
+                        <div class="attribute-item">
+                            <span>Category</span>
+                            <strong>{{ product.category }}</strong>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- AVAILABILITY -->
+            <div class="product-availability">
+
+                {% if product.in_stock > 0 %}
+
+                    <i class="bi bi-check-circle-fill"></i>
+                    {{ product.in_stock }} available
+
+                {% else %}
+
+                    <i class="bi bi-x-circle-fill"></i>
+                    Out of stock
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="product-detail-actions">
+
+                {% if product.in_stock > 0 %}
+
+                    <a
+                        href="{{ url_for('views.start_chat', product_id=product. id) }}"
+                        class="detail-chat-button"
+                    >
+                        <i class="bi bi-chat-dots"></i>
+                        Chat
+                    </a>
+
+                    <a
+                        href="{{ url_for('views.add_to_cart', item_id=product.id) }}"
+                        class="detail-buy-button"
+                    >
+                        Buy Now
+                    </a>
+
+                {% else %}
+
+                    <button
+                        class="detail-disabled-button"
+                        disabled
+                    >
+                        Out of Stock
+                    </button>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

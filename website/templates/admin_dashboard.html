@@ -1,15 +1,272 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %} Admin Dashboard {% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block body %}
 
-<div class="container my-5">
-    <h2>Admin Dashboard</h2>
+<div class="admin-dashboard">
 
-    <ul>
-        <li><a href="/pending-sellers">Pending Seller Approvals</a></li>
-    </ul>
+    <!-- Header -->
+    <div class="admin-dashboard-header">
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+            <h1>Admin Dashboard</h1>
+            <p>Manage your marketplace and keep Vouch running smoothly.</p>
+        </div>
+
+        <div class="admin-profile">
+            <div class="admin-profile-avatar">
+                {{ current_user.username[0]|upper }}
+            </div>
+
+            <div>
+                <strong>{{ current_user.username }}</strong>
+                <span>Super Admin</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Overview -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <h2>Overview</h2>
+                <p>A quick look at your marketplace.</p>
+            </div>
+        </div>
+
+
+        <div class="admin-stats-grid">
+
+            <!-- Total Users -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+
+                <div>
+                    <span>Total Users</span>
+                    <strong>{{ total_users }}</strong>
+                </div>
+            </div>
+
+
+            <!-- Total Listings -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-bag-fill"></i>
+                </div>
+
+                <div>
+                    <span>Total Listings</span>
+                    <strong>{{ total_listings }}</strong>
+                </div>
+            </div>
+
+
+            <!-- Total Orders -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+
+                <div>
+                    <span>Total Orders</span>
+                    <strong>{{ total_orders }}</strong>
+                </div>
+            </div>
+
+
+            <!-- Pending Sellers -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+
+                <div>
+                    <span>Pending Sellers</span>
+                    <strong>{{ pending_sellers }}</strong>
+                </div>
+            </div>
+
+
+            <!-- Verification Requests -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+
+                <div>
+                    <span>Verification Requests</span>
+                    <strong>{{ verification_requests }}</strong>
+                </div>
+            </div>
+
+
+            <!-- Approved Sellers -->
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">
+                    <i class="bi bi-shop"></i>
+                </div>
+
+                <div>
+                    <span>Approved Sellers</span>
+                    <strong>{{ approved_sellers }}</strong>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Management -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <h2>Management</h2>
+                <p>Review and manage important marketplace activity.</p>
+            </div>
+        </div>
+
+
+        <div class="admin-management-grid">
+
+            <!-- Seller Management -->
+            <div class="admin-card">
+
+                <div class="admin-card-icon">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+
+                <div>
+                    <h3>Seller Management</h3>
+                    <p>Review sellers waiting for approval before they can list products.</p>
+                </div>
+
+                <a href="{{ url_for('admin.pending_sellers') }}"
+                   class="admin-card-button">
+                    Review Sellers
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <!-- Student Verification -->
+            <div class="admin-card">
+
+                <div class="admin-card-icon">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+
+                <div>
+                    <h3>Student Verification</h3>
+                    <p>Review students requesting a Vouch Verified badge.</p>
+                </div>
+
+                <a href="{{ url_for('admin.pending_verifications') }}"
+                   class="admin-card-button">
+                    Review Requests
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <!-- Listings -->
+            <div class="admin-card">
+
+                <div class="admin-card-icon">
+                    <i class="bi bi-grid-fill"></i>
+                </div>
+
+                <div>
+                    <h3>Marketplace Listings</h3>
+                    <p>Monitor products currently listed on Vouch.</p>
+                </div>
+
+                <a href="#" class="admin-card-button">
+                    View Listings
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+
+            <!-- Orders -->
+            <div class="admin-card">
+
+                <div class="admin-card-icon">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+
+                <div>
+                    <h3>Orders</h3>
+                    <p>Monitor orders and marketplace transactions.</p>
+                </div>
+
+                <a href="#" class="admin-card-button">
+                    View Orders
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Quick Actions -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Jump straight into the areas that need attention.</p>
+            </div>
+        </div>
+
+
+        <div class="admin-quick-actions">
+
+            <a href="{{ url_for('admin.pending_sellers') }}"
+               class="admin-quick-action">
+
+                <i class="bi bi-person-plus-fill"></i>
+
+                <div>
+                    <strong>Pending Sellers</strong>
+                    <span>Review seller applications</span>
+                </div>
+
+                <i class="bi bi-chevron-right"></i>
+
+            </a>
+
+
+            <a href="{{ url_for('admin.pending_verifications') }}"
+               class="admin-quick-action">
+
+                <i class="bi bi-patch-check-fill"></i>
+
+                <div>
+                    <strong>Verification Requests</strong>
+                    <span>Review Vouch Verified applications</span>
+                </div>
+
+                <i class="bi bi-chevron-right"></i>
+
+            </a>
+
+        </div>
+
+    </section>
+
 </div>
 
 {% endblock %}

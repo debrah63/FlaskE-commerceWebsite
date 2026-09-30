@@ -1,25 +1,143 @@
-{% extends 'base.html'  %}
+{% extends 'base.html' %}
 
-{% block title %} Pending Sellers {% endblock %}
+{% block title %}Pending Sellers{% endblock %}
 
 {% block body %}
 
-<div class="container my-5">
-    <h2>Pending Seller Approvals</h2>
+<div class="admin-dashboard">
 
-    {% if sellers %}
-        <ul>
-            {% for seller in sellers %}
-            <li>
-                {{seller.username }} ({{ seller.email }})
-                <a href="/approve-seller/{{ seller.id }}">Approve</a>
-                <a href="/reject-seller/{{seller.id }}">Reject</a>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>NO pending seller applications.</p>
-    {% endif %}
+    <!-- Header -->
+    <div class="admin-dashboard-header">
+
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+
+            <h1>Pending Sellers</h1>
+
+            <p>
+                Review seller applications before they can list products on Vouch.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="admin-card-button">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Seller Applications -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+                <h2>Seller Applications</h2>
+
+                <p>
+                    {% if sellers %}
+                        {{ sellers|length }} seller{% if sellers|length != 1 %}s{% endif %} waiting for approval.
+                    {% else %}
+                        No seller applications are currently waiting.
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if sellers %}
+
+            <div class="admin-sellers-list">
+
+                {% for seller in sellers %}
+
+                    <div class="admin-seller-row">
+
+                        <!-- Avatar -->
+                        <div class="admin-profile-avatar">
+                            {{ seller.username[0]|upper }}
+                        </div>
+
+
+                        <!-- Seller Information -->
+                        <div class="admin-seller-info">
+
+                            <strong>
+                                {{ seller.username }}
+                            </strong>
+
+                            <span>
+                                {{ seller.email }}
+                            </span>
+
+                            {% if seller.campus %}
+                                <small>
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ seller.campus }}
+                                </small>
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- Status -->
+                        <div class="admin-seller-status pending">
+                            <i class="bi bi-clock-fill"></i>
+                            Pending
+                        </div>
+
+
+                        <!-- Actions -->
+                        <div class="admin-seller-actions">
+
+                            <a href="{{ url_for('admin.approve_seller', seller_id=seller.id) }}"
+                               class="admin-approve-button">
+                                <i class="bi bi-check-lg"></i>
+                                Approve
+                            </a>
+
+                            <a href="{{ url_for('admin.reject_seller', seller_id=seller.id) }}"
+                               class="admin-reject-button">
+                                <i class="bi bi-x-lg"></i>
+                                Reject
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty State -->
+            <div class="empty-products">
+
+                <i class="bi bi-person-check"></i>
+
+                <h3>No pending sellers</h3>
+
+                <p>
+                    New seller applications will appear here when students choose to sell on Vouch.
+                </p>
+
+                <a href="{{ url_for('admin.admin_dashboard') }}"
+                   class="admin-card-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
 </div>
 
-{% endblock%}
+{% endblock %}

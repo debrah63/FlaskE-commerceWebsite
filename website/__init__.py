@@ -2,8 +2,8 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_mail import Mail, Message
+from flask_login import LoginManager, current_user
+from flask_mail import Mail
 
 load_dotenv()
 
@@ -35,25 +35,37 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
 
-    try:
-        with app.app_context():
-            msg = Message( 'Flask Mail Test', sender=app.config['MAIL_USERNAME'], recipients=[app.config['MAIL_USERNAME']])
-            msg.body = 'This is a test email from Flask.'
-            mail.send(msg)
-
-    except Exception as e:
-        print(type(e).__name__)
-        print(str(e))
+    from .models import Customer, Conversation, Message
 
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    from .models import Customer
+
 
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(Customer, int(user_id))
+
+    @app.context_processor
+    def inject_unread_messages():
+        unread_count = 0
+
+        if current_user.is_authenticated:
+            unread_count = Message.query.filter(
+                Message.sender_id != current_user.id,
+                Message.is_read == False,
+                Message.conversation_id.in_(
+                    db.session.query(Conversation.id).filter(
+                        (Conversation.buyer_id == current_user.id) |
+                        (Conversation.seller_id == current_user.id)
+                    )
+                )
+            ).count()
+
+        return {
+            'unread_count': unread_count
+        }
 
     from .views import views
     app.register_blueprint(views, url_prefix='/')

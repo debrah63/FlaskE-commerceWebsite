@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Approved Sellers{% endblock %}
+
+{% block body %}
+
+<div class="admin-dashboard">
+
+    <div class="admin-dashboard-header">
+
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+
+            <h1>Approved Sellers</h1>
+
+            <p>
+                Manage sellers who are approved to list products on Vouch.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="admin-card-button">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+                <h2>Seller Accounts</h2>
+
+                <p>
+                    {{ sellers|length }} approved seller{% if sellers|length != 1 %}s{% endif %}
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if sellers %}
+
+            <div class="admin-sellers-list">
+
+                {% for seller in sellers %}
+
+                    <div class="admin-seller-row">
+
+                        <div class="admin-profile-avatar">
+                            {{ seller.username[0]|upper }}
+                        </div>
+
+
+                        <div class="admin-seller-info">
+
+                            <strong>
+                                {{ seller.username }}
+                            </strong>
+
+                            <span>
+                                {{ seller.email }}
+                            </span>
+
+                            {% if seller.campus %}
+                                <small>
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ seller.campus }}
+                                </small>
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="admin-seller-status">
+                            <span>
+                                <i class="bi bi-check-circle-fill"></i>
+                                Approved
+                            </span>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-products">
+
+                <i class="bi bi-shop"></i>
+
+                <h3>No approved sellers yet</h3>
+
+                <p>
+                    Sellers approved by an admin will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
