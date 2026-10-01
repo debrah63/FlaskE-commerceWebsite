@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Orders{% endblock %}
+
+{% block body %}
+
+<div class="admin-dashboard">
+
+    <!-- Header -->
+    <div class="admin-dashboard-header">
+
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+
+            <h1>Orders</h1>
+
+            <p>
+                Monitor marketplace orders and payment activity.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="admin-card-button">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Orders -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+                <h2>All Orders</h2>
+
+                <p>
+                    {{ orders|length }}
+                    order{% if orders|length != 1 %}s{% endif %}
+                    recorded on Vouch.
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if orders %}
+
+            <div class="admin-orders-table-wrapper">
+
+                <table class="admin-orders-table">
+
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Update</th>
+                            <th>Reference</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for order in orders %}
+
+                            <tr>
+
+                                <!-- Order -->
+                                <td>
+                                    <strong>
+                                        #{{ order.id }}
+                                    </strong>
+                                </td>
+
+
+                                <!-- Customer -->
+                                <td>
+
+                                    {% if order.customer %}
+
+                                        <strong>
+                                            {{ order.customer.username }}
+                                        </strong>
+
+                                        <small class="admin-order-email">
+                                            {{ order.customer.email }}
+                                        </small>
+
+                                    {% else %}
+
+                                        <span class="admin-muted">
+                                            Unknown customer
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Total -->
+                                <td>
+                                    <strong class="admin-order-price">
+                                        GH₵ {{ "%.2f"|format(order.total_amount) }}
+                                    </strong>
+                                </td>
+
+
+                                <!-- Payment -->
+                                <td>
+
+                                    {% if order.payment_status == 'Paid' %}
+
+                                        <span class="admin-payment-status paid">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Paid
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="admin-payment-status unpaid">
+                                            <i class="bi bi-clock-fill"></i>
+                                            {{ order.payment_status }}
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Order status -->
+                                <td>
+                                    <form method="POST"
+                                          action="{{ url_for('admin.update_order_status', order_id=order.id) }}"
+                                          class="admin-order-form">
+
+                                        <select name="status" class="admin-order-select">
+
+                                            <option value="Paid"
+                                                {% if order.status =='Paid' %}selected{% endif %}>
+                                                Paid
+                                            </option>
+
+                                            <option value="Processing"
+                                                {% if order.status =='Processing' %}selected{% endif %}>
+                                                Processing
+                                            </option>
+
+                                            <option value="Shipped"
+                                                {% if order.status =='Shipped' %}selected{% endif %}>
+                                                Shipped
+                                            </option>
+
+                                            <option value="Delivered"
+                                                {% if order.status =='Delivered' %}selected{% endif %}>
+                                                Delivered
+                                            </option>
+
+                                            <option value="Cancelled"
+                                                {% if order.status =='Cancelled' %}selected{% endif %}>
+                                                Cancelled
+                                            </option>
+
+                                        </select>
+
+                                        <button type="submit" class="admin-update-button">
+                                            Update
+                                        </button>
+
+                                    </form>
+                                </td>
+
+
+                                <!-- Payment reference -->
+                                <td>
+
+                                    {% if order.payment_reference %}
+
+                                        <span class="admin-payment-reference">
+                                            {{ order.payment_reference }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="admin-muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Date -->
+                                <td>
+
+                                    {% if order.date_created %}
+
+                                        {{ order.date_created.strftime('%d %b %Y') }}
+
+                                        <small class="admin-order-time">
+                                            {{ order.date_created.strftime('%H:%M') }}
+                                        </small>
+
+                                    {% else %}
+
+                                        <span class="admin-muted">
+                                            —
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-products">
+
+                <i class="bi bi-receipt"></i>
+
+                <h3>No orders yet</h3>
+
+                <p>
+                    Customer orders will appear here once purchases are made.
+                </p>
+
+                <a href="{{ url_for('admin.admin_dashboard') }}"
+                   class="admin-card-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

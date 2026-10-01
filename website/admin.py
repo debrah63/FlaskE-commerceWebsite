@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect
+from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from .models import Customer, Product, Order
 from .import db
@@ -107,6 +107,76 @@ def admin_dashboard():
         verification_requests=verification_requests,
         approved_sellers=approved_sellers
     )
+
+
+@admin.route('/admin-listings')
+@login_required
+def admin_listings():
+
+    if current_user.role != 'admin':
+        return render_template('404.html')
+
+    listings = Product.query.order_by(
+        Product.date_added.desc()
+    ).all()
+
+    return render_template(
+        'admin_listings.html',
+        listings=listings
+    )
+
+@admin.route('/admin-orders')
+@login_required
+def admin_orders():
+
+    if current_user.role != 'admin':
+        return render_template('404.html')
+
+    orders = Order.query.order_by(
+        Order.date_created.desc()
+    ).all()
+
+    return render_template(
+        'admin_orders.html',
+        orders=orders
+    )
+
+
+@admin.route('/update-order-status/<int:order_id>', methods=['POST'])
+@login_required
+def update_order_status(order_id):
+
+    if current_user.role != 'admin':
+        return render_template('404.html')
+
+    order = db.session.get(Order, order_id)
+
+    if not order:
+        flash('Order not found.', 'danger')
+        return redirect(url_for('admin.admin_orders'))
+
+    new_status = request.form.get('status')
+
+    allowed_statuses = [
+        'Paid',
+        'Processing',
+        'Shipped',
+        'Delivered',
+        'Cancelled'
+    ]
+
+    if new_status not in allowed_statuses:
+        flash('Invalid order status.', 'danger')
+        return redirect(url_for('admin.admin_orders'))
+
+    order.status = new_status
+    db.session.commit()
+
+    flash(f'Order #{order.id} status updated to {new_status}.', 'success')
+
+    return redirect(url_for('admin.admin_orders'))
+
+
 @admin.route('/pending-verifications')
 @login_required
 def pending_verifications():

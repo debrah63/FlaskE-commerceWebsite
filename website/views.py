@@ -13,7 +13,8 @@ SHIPPING_FEE = 50
 
 @views.route('/')
 def home():
-    items = Product.query.order_by(Product.date_added.desc()).all()
+    items = Product.\
+        query.order_by(Product.date_added.desc()).all()
     return render_template('home.html', items=items)
 
 @views.route('/product/<int:product_id>')
@@ -167,12 +168,12 @@ def add_to_cart(item_id):
 
     item_to_add = db.session.get(Product, item_id)
 
-    if item_to_add.in_stock <= 0:
-        flash('Sorry, this product is currently out of stock')
-        return redirect(request.referrer or url_for('views.home'))
-
     if not item_to_add:
         flash('Product not found.', 'danger')
+        return redirect(request.referrer or url_for('views.home'))
+
+    if item_to_add.in_stock <= 0:
+        flash('Sorry, this product is currently out of stock')
         return redirect(request.referrer or url_for('views.home'))
 
     item_exists = Cart.query.filter_by(product_id=item_id,customer_id=current_user.id).first()
@@ -436,6 +437,7 @@ def verify_payment(order_id):
                     return redirect(url_for('views.order_history'))
 
             order.status = 'Paid'
+            order.payment_status = 'Paid'
 
             for item in order.items:
                 item.product.in_stock -= item.quantity

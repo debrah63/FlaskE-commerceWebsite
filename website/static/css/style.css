@@ -3983,3 +3983,716 @@ input {
     }
 
 }
+
+
+/* =========================================================
+   ADMIN SELLER MANAGEMENT
+========================================================= */
+
+.admin-sellers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+.admin-seller-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 18px;
+
+    background: var(--white);
+    border: 1px solid var(--vouch-border);
+    border-radius: var(--radius-md);
+
+    transition: 0.2s ease;
+}
+
+
+.admin-seller-row:hover {
+    border-color: #cfd5d1;
+    transform: translateY(-1px);
+}
+
+
+/* Seller information */
+
+.admin-seller-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    flex: 1;
+    min-width: 0;
+}
+
+
+.admin-seller-info strong {
+    color: var(--vouch-dark);
+    font-size: 15px;
+}
+
+
+.admin-seller-info span {
+    color: var(--vouch-gray);
+    font-size: 13px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.admin-seller-info small {
+    color: var(--vouch-gray);
+    font-size: 12px;
+}
+
+
+.admin-seller-info small i {
+    color: var(--vouch-green);
+}
+
+
+/* Status */
+
+.admin-seller-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.admin-seller-status.pending {
+    color: #9a6700;
+    background: #fff7df;
+}
+
+
+/* Actions */
+
+.admin-seller-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+.admin-approve-button,
+.admin-reject-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 9px 13px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: 0.2s ease;
+}
+
+
+.admin-approve-button {
+    color: #ffffff;
+    background: var(--vouch-green);
+}
+
+
+.admin-approve-button:hover {
+    background: var(--vouch-green-dark);
+    color: #ffffff;
+}
+
+
+.admin-reject-button {
+    color: #b42318;
+    background: #fff1f0;
+}
+
+
+.admin-reject-button:hover {
+    background: #fee4e2;
+    color: #b42318;
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .admin-seller-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+
+    .admin-seller-info {
+        flex: 1;
+        min-width: calc(100% - 70px);
+    }
+
+
+    .admin-seller-status {
+        margin-left: 56px;
+    }
+
+
+    .admin-seller-actions {
+        width: 100%;
+        margin-left: 56px;
+    }
+
+
+    .admin-approve-button,
+    .admin-reject-button {
+        flex: 1;
+        justify-content: center;
+    }
+
+}
+
+
+/* =========================================================
+   ADMIN VERIFICATION MANAGEMENT
+========================================================= */
+
+.admin-verification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+.admin-verification-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 18px;
+
+    background: var(--white);
+    border: 1px solid var(--vouch-border);
+    border-radius: var(--radius-md);
+
+    transition: 0.2s ease;
+}
+
+
+.admin-verification-row:hover {
+    border-color: #cfd5d1;
+    transform: translateY(-1px);
+}
+
+
+/* Student information */
+
+.admin-verification-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    flex: 1;
+    min-width: 0;
+}
+
+
+.admin-verification-info strong {
+    color: var(--vouch-dark);
+    font-size: 15px;
+}
+
+
+.admin-verification-info span,
+.admin-verification-info small {
+    color: var(--vouch-gray);
+    font-size: 13px;
+}
+
+
+.admin-verification-info i {
+    color: var(--vouch-green);
+    margin-right: 4px;
+}
+
+
+/* Pending status */
+
+.admin-verification-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    color: #9a6700;
+    background: #fff7df;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* Actions */
+
+.admin-verification-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .admin-verification-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+
+    .admin-verification-info {
+        flex: 1;
+        min-width: calc(100% - 70px);
+    }
+
+
+    .admin-verification-status {
+        margin-left: 56px;
+    }
+
+
+    .admin-verification-actions {
+        width: 100%;
+        margin-left: 56px;
+    }
+
+
+    .admin-verification-actions .admin-approve-button,
+    .admin-verification-actions .admin-reject-button {
+        flex: 1;
+        justify-content: center;
+    }
+
+}
+
+
+/* =========================================================
+   ADMIN MARKETPLACE LISTINGS
+========================================================= */
+
+.admin-listings-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+
+    background: var(--white);
+    border: 1px solid var(--vouch-border);
+    border-radius: var(--radius-md);
+}
+
+
+.admin-listings-table {
+    width: 100%;
+    min-width: 900px;
+
+    border-collapse: collapse;
+}
+
+
+.admin-listings-table th {
+    padding: 14px 16px;
+
+    background: var(--vouch-light-gray);
+
+    color: var(--vouch-gray);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: left;
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--vouch-border);
+}
+
+
+.admin-listings-table td {
+    padding: 14px 16px;
+
+    color: var(--vouch-dark);
+
+    font-size: 13px;
+
+    border-bottom: 1px solid var(--vouch-border);
+
+    vertical-align: middle;
+}
+
+
+.admin-listings-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+.admin-listings-table tbody tr:hover {
+    background: #fafcfb;
+}
+
+
+/* Product */
+
+.admin-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    min-width: 220px;
+}
+
+
+.admin-product-image,
+.admin-product-placeholder {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 8px;
+
+    object-fit: cover;
+}
+
+
+.admin-product-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--vouch-light-gray);
+
+    color: var(--vouch-gray);
+
+    font-size: 18px;
+}
+
+
+.admin-product-cell > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+
+.admin-product-cell strong {
+    color: var(--vouch-dark);
+    font-size: 13px;
+}
+
+
+.admin-product-cell small {
+    color: var(--vouch-gray);
+    font-size: 11px;
+}
+
+
+/* Price */
+
+.admin-product-price {
+    color: var(--vouch-green);
+    white-space: nowrap;
+}
+
+
+/* Muted text */
+
+.admin-muted {
+    color: var(--vouch-gray);
+}
+
+
+/* Campus */
+
+.admin-listings-table td i {
+    color: var(--vouch-green);
+}
+
+
+/* Stock */
+
+.admin-stock-status {
+    display: inline-flex;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.admin-stock-status.in-stock {
+    color: #087f3e;
+    background: var(--vouch-green-light);
+}
+
+
+.admin-stock-status.out-of-stock {
+    color: #b42318;
+    background: #fff1f0;
+}
+
+
+/* =========================================================
+   ADMIN ORDERS
+========================================================= */
+
+.admin-orders-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+
+    background: var(--white);
+    border: 1px solid var(--vouch-border);
+    border-radius: var(--radius-md);
+}
+
+
+.admin-orders-table {
+    width: 100%;
+    min-width: 950px;
+
+    border-collapse: collapse;
+}
+
+
+.admin-orders-table th {
+    padding: 14px 16px;
+
+    background: var(--vouch-light-gray);
+
+    color: var(--vouch-gray);
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: left;
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--vouch-border);
+}
+
+
+.admin-orders-table td {
+    padding: 14px 16px;
+
+    color: var(--vouch-dark);
+
+    font-size: 13px;
+
+    border-bottom: 1px solid var(--vouch-border);
+
+    vertical-align: middle;
+}
+
+
+.admin-orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+.admin-orders-table tbody tr:hover {
+    background: #fafcfb;
+}
+
+
+/* Customer */
+
+.admin-order-email,
+.admin-order-time {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--vouch-gray);
+
+    font-size: 11px;
+}
+
+
+/* Price */
+
+.admin-order-price {
+    color: var(--vouch-green);
+    white-space: nowrap;
+}
+
+
+/* Payment */
+
+.admin-payment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.admin-payment-status.paid {
+    color: #087f3e;
+    background: var(--vouch-green-light);
+}
+
+
+.admin-payment-status.unpaid {
+    color: #9a6700;
+    background: #fff7df;
+}
+
+
+/* Order status */
+
+.admin-order-status {
+    display: inline-flex;
+
+    padding: 6px 9px;
+
+    border-radius: 999px;
+
+    background: #f1f3f5;
+
+    color: var(--vouch-dark);
+
+    font-size: 11px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* Payment reference */
+
+.admin-payment-reference {
+    display: block;
+
+    max-width: 160px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    color: var(--vouch-gray);
+
+    font-size: 12px;
+}
+
+
+/* ================================
+   ADMIN VIEW BUTTON
+================================ */
+
+.admin-view-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: #16a34a;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.admin-view-button:hover {
+    background: #15803d;
+    color: white;
+    transform: translateY(-1px);
+}
+
+
+/* ================================
+   ADMIN ORDER UPDATE
+================================ */
+
+.admin-order-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-order-select {
+    padding: 7px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    outline: none;
+}
+
+.admin-order-select:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
+}
+
+.admin-update-button {
+    padding: 7px 12px;
+    border: none;
+    border-radius: 8px;
+    background: #16a34a;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-update-button:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+
+    .admin-order-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-order-select,
+    .admin-update-button {
+        width: 100%;
+    }
+
+}
+
+

@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Marketplace Listings{% endblock %}
+
+{% block body %}
+
+<div class="admin-dashboard">
+
+    <!-- Header -->
+    <div class="admin-dashboard-header">
+
+        <div>
+            <span class="admin-eyebrow">VOUCH ADMIN</span>
+
+            <h1>Marketplace Listings</h1>
+
+            <p>
+                Monitor products currently listed on Vouch.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin.admin_dashboard') }}"
+           class="admin-card-button">
+            <i class="bi bi-arrow-left"></i>
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- Listings -->
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+                <h2>All Listings</h2>
+
+                <p>
+                    {{ listings|length }}
+                    listing{% if listings|length != 1 %}s{% endif %}
+                    currently on Vouch.
+                </p>
+            </div>
+
+        </div>
+
+
+        {% if listings %}
+
+            <div class="admin-listings-table-wrapper">
+
+                <table class="admin-listings-table">
+
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Seller</th>
+                            <th>Campus</th>
+                            <th>Category</th>
+                            <th>Condition</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in listings %}
+
+                            <tr>
+
+                                <!-- Product -->
+                                <td>
+
+                                    <div class="admin-product-cell">
+
+                                        {% if item.product_picture %}
+
+                                            <img
+                                                src="/media/{{ item.product_picture }}"
+                                                alt="{{ item.product_name }}"
+                                                class="admin-product-image"
+                                            >
+
+                                        {% else %}
+
+                                            <div class="admin-product-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+
+                                        {% endif %}
+
+                                        <div>
+                                            <strong>
+                                                {{ item.product_name }}
+                                            </strong>
+
+                                            <small>
+                                                #{{ item.id }}
+                                            </small>
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- Seller -->
+                                <td>
+
+                                    {% if item.seller %}
+
+                                        <strong>
+                                            {{ item.seller.username }}
+                                        </strong>
+
+                                    {% else %}
+
+                                        <span class="admin-muted">
+                                            Unknown seller
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Campus -->
+                                <td>
+
+                                    {% if item.seller and item.seller.campus %}
+
+                                        <span>
+                                            <i class="bi bi-geo-alt"></i>
+                                            {{ item.seller.campus }}
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="admin-muted">
+                                            Not specified
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- Category -->
+                                <td>
+                                    {{ item.category or 'Not specified' }}
+                                </td>
+
+
+                                <!-- Condition -->
+                                <td>
+                                    {{ item.condition or 'Not specified' }}
+                                </td>
+
+
+                                <!-- Price -->
+                                <td>
+                                    <strong class="admin-product-price">
+                                        GH₵ {{ "%.2f"|format(item.current_price) }}
+                                    </strong>
+                                </td>
+
+
+                                <!-- Stock -->
+                                <td>
+
+                                    {% if item.in_stock and item.in_stock > 0 %}
+
+                                        <span class="admin-stock-status in-stock">
+                                            {{ item.in_stock }} available
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="admin-stock-status out-of-stock">
+                                            Out of stock
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <!--Action -->
+                                <td>
+                                    <a href="{{ url_for('views.product_detail', product_id=listing.id) }}"
+                                       class="admin-view-button">
+                                        View
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty State -->
+
+            <div class="empty-products">
+
+                <i class="bi bi-grid"></i>
+
+                <h3>No marketplace listings</h3>
+
+                <p>
+                    Products listed by approved sellers will appear here.
+                </p>
+
+                <a href="{{ url_for('admin.admin_dashboard') }}"
+                   class="admin-card-button">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

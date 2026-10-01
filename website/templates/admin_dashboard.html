@@ -106,7 +106,9 @@
 
 
             <!-- Approved Sellers -->
-            <div class="admin-stat-card">
+            <a href="{{ url_for('admin.approved_sellers') }}"
+               class="admin-stat-card admin-stat-link">
+
                 <div class="admin-stat-icon">
                     <i class="bi bi-shop"></i>
                 </div>
@@ -115,8 +117,10 @@
                     <span>Approved Sellers</span>
                     <strong>{{ approved_sellers }}</strong>
                 </div>
-            </div>
 
+                <i class="bi bi-arrow-right admin-stat-arrow"></i>
+
+            </a>
         </div>
 
     </section>
@@ -189,7 +193,8 @@
                     <p>Monitor products currently listed on Vouch.</p>
                 </div>
 
-                <a href="#" class="admin-card-button">
+                <a href="{{ url_for('admin.admin_listings') }}"
+                   class="admin-card-button">
                     View Listings
                     <i class="bi bi-arrow-right"></i>
                 </a>
@@ -209,7 +214,8 @@
                     <p>Monitor orders and marketplace transactions.</p>
                 </div>
 
-                <a href="#" class="admin-card-button">
+                <a href="{{ url_for('admion.admin_orders') }}"
+                   class="admin-card-button">
                     View Orders
                     <i class="bi bi-arrow-right"></i>
                 </a>
