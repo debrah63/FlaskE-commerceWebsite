@@ -4696,3 +4696,259 @@ input {
 }
 
 
+/* =========================================
+   ADMIN DASHBOARD
+========================================= */
+
+.admin-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.admin-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.admin-dashboard-header h1 {
+    margin: 6px 0 8px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #0b1d1f;
+}
+
+.admin-dashboard-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #16a34a;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.admin-profile strong,
+.admin-profile span {
+    display: block;
+}
+
+.admin-profile span {
+    margin-top: 3px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.admin-section {
+    margin-bottom: 40px;
+}
+
+.admin-section-heading {
+    margin-bottom: 18px;
+}
+
+.admin-section-heading h2 {
+    margin: 0 0 5px;
+    font-size: 22px;
+    color: #0b1d1f;
+}
+
+.admin-section-heading p {
+    margin: 0;
+    color: #64748b;
+}
+
+
+/* Overview cards */
+
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.admin-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 110px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.admin-stat-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.admin-stat-card span {
+    display: block;
+    margin-bottom: 5px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.admin-stat-card strong {
+    display: block;
+    font-size: 26px;
+    color: #0b1d1f;
+}
+
+.admin-stat-link {
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-stat-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.admin-stat-arrow {
+    margin-left: auto;
+    color: #94a3b8;
+}
+
+
+/* Management */
+
+.admin-management-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.admin-card {
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.admin-card-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-card h3 {
+    margin: 0 0 7px;
+    color: #0b1d1f;
+}
+
+.admin-card p {
+    margin: 0 0 20px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.admin-card-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 9px;
+    background: #16a34a;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* Quick actions */
+
+.admin-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.admin-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.admin-quick-action > i:first-child {
+    color: #16a34a;
+    font-size: 20px;
+}
+
+.admin-quick-action div {
+    flex: 1;
+}
+
+.admin-quick-action strong,
+.admin-quick-action span {
+    display: block;
+}
+
+.admin-quick-action span {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .admin-dashboard {
+        padding: 28px 16px 50px;
+    }
+
+    .admin-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .admin-stats-grid,
+    .admin-management-grid,
+    .admin-quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
