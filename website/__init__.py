@@ -35,6 +35,24 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
 
+    @app.context_processor
+    def inject_unread_count():
+        from .models import Conversation, Message
+        if current_user.is_authenticated:
+            count = Message.query.filter(
+                Message.sender_id != current_user.id,
+                Message.is_read == False,
+                Message.conversation_id.in_(
+                    db.session.query(Conversation.id).filter(
+                        (Conversation.buyer_id == current_user.id) |
+                        (Conversation.seller_id == current_user.id)
+                    )
+                )
+            ).count()
+        else:
+            count = 0
+        return dict(unread_count=count)
+
     from .models import Customer, Conversation, Message
 
     login_manager = LoginManager()

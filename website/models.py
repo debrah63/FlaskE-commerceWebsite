@@ -70,6 +70,16 @@ class Product(db.Model):
     seller_id = db.Column(db.Integer,db.ForeignKey('customer.id'),nullable=False)
 
 
+class Wishlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    date_added = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    customer = db.relationship('Customer', backref=db.backref('wishlist_items', lazy=True))
+    product = db.relationship('Product', backref=db.backref('wishlisted_by', lazy=True))
+
+
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 

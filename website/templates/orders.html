@@ -134,14 +134,13 @@
 
                 </h5>
 
-                {& if order.status =='Pending Pyment' %}
+                {& if order.status =='Pending Payment' %}
                 <div class="text-end mt-3">
-                    <a href="{{ url_for(('views.initiate_payment', order_id=order.id) }}" class="btn btn=primary">
+                    <a href="{{ url_for(('views.initiate_payment', order_id=order.id) }}" class="btn btn-primary">
                     Complete Payment
                     </a>
                 </div>
-
-
+                {% endif %}
 
             </div>
 

@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, request, url_for,
 from flask_login import login_required, current_user
 import requests
 
-from .models import Product, Cart, Order, OrderItem, Conversation, Message
+from .models import Product, Cart, Order, OrderItem, Conversation, Message, Customer
 from . import db
 
 
@@ -13,9 +13,23 @@ SHIPPING_FEE = 50
 
 @views.route('/')
 def home():
-    items = Product.\
-        query.order_by(Product.date_added.desc()).all()
-    return render_template('home.html', items=items)
+    from .models import Wishlist
+
+    campus = request.args.get('campus')
+
+    query = Product.query.order_by(Product.date_added.desc())
+
+    if campus:
+        query = query.join(Customer, Product.seller_id == Customer.id).filter(Customer.campus == campus)
+
+    items = query.all()
+
+    wishlisted_ids = set()
+    if current_user.is_authenticated:
+        wishlisted_ids = {w.product_id for w in Wishlist.query.filter_by(customer_id=current_user.id).all()}
+
+    return render_template('home.html', items=items, wishlisted_ids=wishlisted_ids, selected_campus=campus)
+
 
 @views.route('/product/<int:product_id>')
 def product_detail(product_id):
@@ -26,6 +40,26 @@ def product_detail(product_id):
         return redirect(url_for('views.home'))
 
     return render_template('product_detail.html', product=product)
+
+
+@views.route('/toggle-wishlist/<int:product_id>')
+@login_required
+def toggle_wishlist(product_id):
+    from .models import Wishlist
+
+    existing = Wishlist.query.filter_by(customer_id=current_user.id, product_id=product_id).first()
+
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+        flash('Removed from wishlist')
+    else:
+        new_item = Wishlist(customer_id=current_user.id, product_id=product_id)
+        db.session.add(new_item)
+        db.session.commit()
+        flash('Added to wishlist')
+
+    return redirect(request.referrer or url_for('views.home'))
 
 @views.route('/chat/<int:product_id>')
 @login_required
@@ -148,12 +182,6 @@ def messages():
         conversations=conversations,
         unread_count=unread_count
     )
-
-
-@views.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', user=current_user)
 
 
 @views.route('/media/<path:filename>')

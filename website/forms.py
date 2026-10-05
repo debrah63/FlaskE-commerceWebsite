@@ -10,13 +10,13 @@ from flask_wtf. file import FileField, FileRequired, FileAllowed
 class ProductForm(FlaskForm):
     product_name = StringField('Product Name', validators=[DataRequired(), length(min=5, max=100)])
     description = TextAreaField('Description', validators=[DataRequired(), length(min=10, max=1000)])
-    category = StringField('Category', validators=[DataRequired(), length(min=5, max=100)])
+    category = SelectField('Category', choices=[('Electronics', ' Electronics'), ('Books', 'Books'), ('Fashion', 'Fashion'),('Hostel', 'Hostel'), ('Personal care', 'Personal care'),('Phones', 'Phones'),('Accessories', 'Accessories'), ('Services', 'Services') ], validators=[DataRequired()])
     product_type = StringField('Product Type', validators=[DataRequired(), length(min=5, max=100)])
-    brand = StringField('Brand', validators=[DataRequired(), Optional(), length(min=5, max=100)])
-    condition = StringField('Condition', choices=[('New', 'New'), ('Like New','Like New'), ('Good','Good'),('Fair', 'Fair'),('Used','Used')], validators=[DataRequired(), length(min=5, max=100)])
+    brand = StringField('Brand', validators=[Optional(), length(max=100)])
+    condition = SelectField('Condition', choices =[('New', 'New'), ('Like New','Like New'), ('Good','Good'),('Fair', 'Fair'),('Used','Used')], validators=[DataRequired()])
 
     current_price = FloatField('Current Price', validators=[DataRequired(), NumberRange(min=0.01)])
-    previous_price = FloatField('Previous Price', validators=[DataRequired(), NumberRange(min=0)])
+    previous_price = FloatField('Previous Price', validators=[Optional(), NumberRange(min=0)])
     in_stock = IntegerField('In stock', validators=[DataRequired(), NumberRange(min=0)])
     product_picture = FileField('Product Picture', validators=[FileRequired(message='A product picture is required'),FileAllowed(['jpg', 'jpeg', 'png'], message='Images only (jpg, jpeg, png)')])
     flash_sale = BooleanField('Flash Sale')

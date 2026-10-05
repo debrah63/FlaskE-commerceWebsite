@@ -63,7 +63,7 @@ def add_product():
 
             flash(f'{new_product.product_name} added successfully.', 'success')
 
-            return redirect('seller.my-products')
+            return redirect(url_for('seller.my_products'))
 
         except Exception as e:
 
