@@ -117,44 +117,66 @@
 
             <div class="categories-grid">
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Electronics') }}" class="category-card {% if request.args.get('category') == 'Electronics' %}active{% endif %}">
                     <div class="category-icon">
-                        <i class="bi bi-phone"></i>
+                        <i class="bi bi-laptop"></i>
                     </div>
                     <span>Electronics</span>
                 </a>
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Books') }}" class="category-card {% if request.args.get('category') == 'Books' %}active{% endif %}">
                     <div class="category-icon">
                         <i class="bi bi-book"></i>
                     </div>
                     <span>Books</span>
                 </a>
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Fashion') }}" class="category-card {% if request.args.get('category') == 'Fashion' %}active{% endif %}">
                     <div class="category-icon">
-                        <i class="bi bi-person-badge"></i>
+                        <i class="bi bi-shopping-tag"></i>
                     </div>
                     <span>Fashion</span>
                 </a>
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Hostel') }}" class="category-card {% if request.args.get('category') == 'Electronics' %}active{% endif %}">
                     <div class="category-icon">
                         <i class="bi bi-house"></i>
                     </div>
                     <span>Hostel</span>
                 </a>
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Food') }}" class="category-card {% if request.args.get('category') == 'Food' %}active{% endif %}">
                     <div class="category-icon">
                         <i class="bi bi-cup-hot"></i>
                     </div>
                     <span>Food</span>
                 </a>
 
-                <a href="#trending" class="category-card">
+                <a href="{{ url_for('views.home', category='Personal care') }}" class="category-card {% if request.args.get('category') == 'Personal care' %}active{% endif %}">
                     <div class="category-icon">
-                        <i class="bi bi-grid"></i>
+                        <i class="bi bi-perfume-bottle"></i>
+                    </div>
+                    <span>Personal care</span>
+                </a>
+
+
+                <a href="{{ url_for('views.home', category='Phones') }}" class="category-card">
+                    <div class="category-icon">
+                        <i class="bi bi-phone"></i>
+                    </div>
+                    <span>Phones</span>
+                </a>
+
+                <a href="{{ url_for('views.home', category='Accessories') }}" class="category-card {% if request.args.get('category') == 'Accessories' %}active{% endif %}">
+                    <div class="category-icon">
+                        <i class="bi bi-plug"></i>
+                    </div>
+                    <span>Accessories</span>
+                </a>
+
+                <a href="{{ url_for('views.home', category='Services') }}" class="category-card {% if request.args.get('category') == 'Services' %}active{% endif %}">
+                    <div class="category-icon">
+                        <i class="bi bi-screwdriver"></i>
                     </div>
                     <span>Services</span>
                 </a>
@@ -171,15 +193,29 @@
         <div class="section-heading">
 
             <div>
-                <h2>
-                    Trending Near You
-                    <span>🔥</span>
-                </h2>
+                {% if request.args.get('category') %}
 
-                <p>Popular products from students around you.</p>
+                    <h2>
+                        {{ request.args.get('category') }}
+                    </h2>
+
+                    <p>
+                        Browse {{ request.args.get('category')|lower }} available on Vouch.
+                    </p>
+
+                {% else %}
+
+                    <h2>
+                        Trending Near You
+                        <span>🔥</span>
+                    </h2>
+
+                    <p>Popular products from students around you.</p>
+
+                {% endif %}
             </div>
 
-            <a href="#trending" class="view-all">
+            <a href="{{ url_for('views.home') }}" class="view-all">
                 View all
                 <i class="bi bi-arrow-right"></i>
             </a>

@@ -1,14 +1,12 @@
 from flask import Blueprint, render_template, flash, redirect, request, url_for, current_app
 from flask_login import login_required, current_user
 import requests
-
+from .shipping import shipping_fee
 from .models import Product, Cart, Order, OrderItem, Conversation, Message, Customer
 from . import db
 
 
 views = Blueprint('views', __name__)
-
-SHIPPING_FEE = 50
 
 
 @views.route('/')
@@ -16,19 +14,48 @@ def home():
     from .models import Wishlist
 
     campus = request.args.get('campus')
+    category = request.args.get('category')
 
-    query = Product.query.order_by(Product.date_added.desc())
+    query = Product.query
 
+    # Filter by campus
     if campus:
-        query = query.join(Customer, Product.seller_id == Customer.id).filter(Customer.campus == campus)
+        query = query.join(
+            Customer,
+            Product.seller_id == Customer.id
+        ).filter(
+            Customer.campus == campus
+        )
 
-    items = query.all()
+    # Filter by category
+    if category:
+        query = query.filter(
+            Product.category == category
+        )
 
+    # Newest products first
+    items = query.order_by(
+        Product.date_added.desc()
+    ).all()
+
+    # Wishlist
     wishlisted_ids = set()
-    if current_user.is_authenticated:
-        wishlisted_ids = {w.product_id for w in Wishlist.query.filter_by(customer_id=current_user.id).all()}
 
-    return render_template('home.html', items=items, wishlisted_ids=wishlisted_ids, selected_campus=campus)
+    if current_user.is_authenticated:
+        wishlisted_ids = {
+            w.product_id
+            for w in Wishlist.query.filter_by(
+                customer_id=current_user.id
+            ).all()
+        }
+
+    return render_template(
+        'home.html',
+        items=items,
+        wishlisted_ids=wishlisted_ids,
+        selected_campus=campus,
+        selected_category=category
+    )
 
 
 @views.route('/product/<int:product_id>')
@@ -233,14 +260,37 @@ def add_to_cart(item_id):
 @login_required
 def show_cart():
 
-    cart = Cart.query.filter_by(customer_id=current_user.id).all()
+    cart = Cart.query.filter_by(
+        customer_id=current_user.id
+    ).all()
 
+    amount = sum(
+        item.product.current_price * item.quantity
+        for item in cart
+        if item.product
+    )
 
-    amount = sum(item.product.current_price * item.quantity for item in cart if item.product)
+    seller_campuses = {
+        item.product.seller.campus
+        for item in cart
+        if item.product and item.product.seller
+    }
 
+    shipping_total = sum(
+        shipping_fee(
+            current_user.campus,
+            campus
+        )['fee']
+        for campus in seller_campuses
+    )
 
-    return render_template('cart.html',cart=cart,amount=amount,total=amount + SHIPPING_FEE)
-
+    return render_template(
+        'cart.html',
+        cart=cart,
+        amount=amount,
+        shipping=shipping_total,
+        total=amount + shipping_total
+    )
 
 
 @views.route('/increase-cart/<int:cart_id>')
@@ -308,59 +358,99 @@ def remove_from_cart(cart_id):
 @login_required
 def checkout():
 
-    cart = Cart.query.filter_by(customer_id=current_user.id).all()
-
+    cart = Cart.query.filter_by(
+        customer_id=current_user.id
+    ).all()
 
     if not cart:
-
         flash('Your cart is empty')
-
         return redirect(url_for('views.home'))
 
+    total_items = sum(
+        item.product.current_price * item.quantity
+        for item in cart
+        if item.product
+    )
 
-    total = sum(item.product.current_price * item.quantity for item in cart if item.product)
+    seller_campuses = {
+        item.product.seller.campus
+        for item in cart
+        if item.product and item.product.seller
+    }
 
+    shipping_total = sum(
+        shipping_fee(
+            current_user.campus,
+            campus
+        )['fee']
+        for campus in seller_campuses
+    )
 
-    return render_template('checkout.html',cart=cart,total=total + SHIPPING_FEE)
-
-
+    return render_template(
+        'checkout.html',
+        cart=cart,
+        shipping=shipping_total,
+        total=total_items + shipping_total
+    )
 
 @views.route('/place-order', methods=['POST'])
 @login_required
 def place_order():
-
-    cart = Cart.query.filter_by(customer_id=current_user.id).all()
-
+    cart = Cart.query.filter_by(
+        customer_id=current_user.id
+    ).all()
     if not cart:
         flash('Your cart is empty')
         return redirect(url_for('views.home'))
-
     try:
+        # Check stock before creating the order
         for item in cart:
             if item.quantity > item.product.in_stock:
-                flash(f'Only {item.product.product_name} "{item.product.product_name}" left in stock.')
+                flash(
+                    f'Only {item.product.in_stock} '
+                    f'"{item.product.product_name}" left in stock.'
+                )
                 return redirect(url_for('views.show_cart'))
-
-        new_order = Order(customer_id=current_user.id, status='Pending Payment')
+        # Get the unique campuses of sellers in the cart
+        seller_campuses = {
+            item.product.seller.campus
+            for item in cart
+            if item.product and item.product.seller
+        }
+        # Calculate shipping based on buyer's campus
+        shipping_total = sum(
+            shipping_fee(
+                current_user.campus,
+                campus
+            )['fee']
+            for campus in seller_campuses
+        )
+        # Create the order
+        new_order = Order(
+            customer_id=current_user.id,
+            status='Pending Payment',
+            shipping_fee=shipping_total
+        )
         db.session.add(new_order)
         db.session.flush()
-
+        # Move cart items into the order
         for item in cart:
-            new_item = OrderItem(order_id=new_order.id,product_id=item.product_id,quantity=item.quantity,price_at_purchase=item.product.current_price)
+            new_item = OrderItem(
+                order_id=new_order.id,
+                product_id=item.product_id,
+                quantity=item.quantity,
+                price_at_purchase=item.product.current_price
+            )
             db.session.add(new_item)
             db.session.delete(item)
-
         db.session.commit()
-
         flash('Order placed successfully! Awaiting payment.')
         return redirect(url_for('views.order_history'))
-
     except Exception as e:
         db.session.rollback()
         print(e)
         flash('Something went wrong while placing your order')
         return redirect(url_for('views.show_cart'))
-
 
 @views.route('/orders')
 @login_required

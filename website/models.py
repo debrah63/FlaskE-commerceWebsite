@@ -106,6 +106,8 @@ class Order(db.Model):
 
     payment_reference = db.Column(db.String(200),nullable=True)
 
+    shipping_fee = db.Column(db.Float, nullable=False, default=0.0)
+
     date_created = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
     customer = db.relationship('Customer',backref=db.backref('orders', lazy=True))
@@ -114,7 +116,8 @@ class Order(db.Model):
 
     @property
     def total_amount(self):
-        return sum(item.price_at_purchase * item.quantity for item in self.items)
+        items_total = sum(item.price_at_purchase * item.quantity for item in self.items)
+        return items_total + self.shipping_fee
 
 
 class OrderItem(db.Model):

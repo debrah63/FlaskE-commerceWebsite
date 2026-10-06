@@ -120,19 +120,19 @@
 
 
                 <hr>
-
-
+                <p class="text-end">
+                    Items:
+                    GH₵ {{ "%.2f"|format(order.total_amount - order.shipping_fee) }}
+                </p>
+                <p class="text-end">
+                    Shipping:
+                    GH₵ {{ "%.2f"|format(order.shipping_fee) }}
+                </p>
                 <h5 class="text-end">
-
                     Total:
-
-                    GH₵
-                    {{
-                    "%.2f"|format(
-                    order.total_amount)
-                    }}
-
+                    GH₵ {{ "%.2f"|format(order.total_amount) }}
                 </h5>
+
 
                 {& if order.status =='Pending Payment' %}
                 <div class="text-end mt-3">

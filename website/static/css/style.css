@@ -5029,6 +5029,19 @@ input {
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
+
+.category-card.active {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    box-shadow: 0 6px 18px rgba(22, 163, 74, 0.12);
+}
+
+.category-card.active .category-icon {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+
 .category-icon {
     width: 48px;
     height: 48px;
