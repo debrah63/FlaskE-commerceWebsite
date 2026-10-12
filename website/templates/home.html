@@ -38,12 +38,8 @@
                     <i class="bi bi-arrow-right"></i>
                 </a>
 
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated and current_user.role == 'seller' and current_user.is_approved %}
                     <a href="/add-product" class="hero-secondary-btn">
-                        Sell an Item
-                    </a>
-                {% else %}
-                    <a href="/login" class="hero-secondary-btn">
                         Sell an Item
                     </a>
                 {% endif %}
@@ -62,7 +58,7 @@
                    class="campus-pill {% if not selected_campus %}active{% endif %}">
                     All
                 </a>
-                <a href="{{ url_for('views.home', campus='Legon') }}"
+                <a href="{{ url_for('views.home', campus='GCTU') }}"
                    class="campus-pill {% if selected_campus == 'GCTU' %}active{% endif %}">
                     GCTU
                 </a>
@@ -86,7 +82,7 @@
                    class="campus-pill {% if selected_campus == 'GIMPA' %}active{% endif %}">
                     GIMPA
                 </a>
-                <a href="{{ url_for('views.home', campus='Legon') }}"
+                <a href="{{ url_for('views.home', campus='Central') }}"
                    class="campus-pill {% if selected_campus == 'Central' %}active{% endif %}">
                     Central
                 </a>
@@ -345,11 +341,11 @@
                     Be the first student to list something on Vouch.
                 </p>
 
-                {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated and current_user.role == 'seller' and current_user.is_approved %}
                     <a href="/add-product" class="hero-primary-btn">
                         Sell an Item
                     </a>
-                {% else %}
+                {% elif not current_user.is_authenticated  %}
                     <a href="/sign-up" class="hero-primary-btn">
                         Join Vouch
                     </a>

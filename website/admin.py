@@ -71,6 +71,7 @@ def reject_seller(seller_id):
 
     return redirect('/pending-sellers')
 
+
 @admin.route('/admin-dashboard')
 @login_required
 def admin_dashboard():

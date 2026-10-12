@@ -20,6 +20,7 @@ def sign_up():
 
     if form.validate_on_submit():
         role = form.role.data
+        print("SIGNUP ROLE:", role)
         email = form.email.data.strip().lower()
         username = form.username.data.strip()
 

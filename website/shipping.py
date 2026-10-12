@@ -18,7 +18,7 @@ CAMPUS_DISTANCES_KM = {
 
 ZONE_BOUNDARIES = [(0, 1), (1, 50), (50, 150), (150, float('inf'))]
 ZONE_FEES = {1: 10.0, 2: 15.0, 3: 22.0, 4: 30.0}
-UNKNOWN_ROUTE_FEE = 25.0
+UNKNOWN_ROUTE_FEE = 50.0
 
 
 def get_zone(distance_km):

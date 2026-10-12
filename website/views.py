@@ -452,6 +452,8 @@ def place_order():
         flash('Something went wrong while placing your order')
         return redirect(url_for('views.show_cart'))
 
+
+
 @views.route('/orders')
 @login_required
 def order_history():
@@ -466,26 +468,23 @@ def order_history():
 @views.route('/initiate-payment/<int:order_id>')
 @login_required
 def initiate_payment(order_id):
-
     order = db.session.get(Order, order_id)
-
     if not order or order.customer_id != current_user.id:
-        flash('Order not found')
+        flash('Order not found.')
         return redirect(url_for('views.order_history'))
-
     if order.status != 'Pending Payment':
-        flash('This order has already been processed')
+        flash('This order has already been processed.')
         return redirect(url_for('views.order_history'))
-
-    secret_key = current_app.config['PAYSTACK_SECRET_KEY']
-
-    amount_in_pesewas = int(order.total_amount * 100)
-
+    secret_key = current_app.config.get('PAYSTACK_SECRET_KEY')
+    if not secret_key:
+        current_app.logger.error('Paystack secret key is missing.')
+        flash('Payment configuration is incomplete.')
+        return redirect(url_for('views.order_history'))
+    amount_in_pesewas = int(round(float(order.total_amount) * 100))
     headers = {
         'Authorization': f'Bearer {secret_key}',
         'Content-Type': 'application/json'
     }
-
     payload = {
         'email': current_user.email,
         'amount': amount_in_pesewas,
@@ -496,29 +495,41 @@ def initiate_payment(order_id):
             _external=True
         )
     }
-
     try:
-
-        response = requests.post('https://api.paystack.co/transaction/initialize',json=payload,headers=headers,timeout=30)
-
+        response = requests.post(
+            'https://api.paystack.co/transaction/initialize',
+            json=payload,
+            headers=headers,
+            timeout=(10, 30)
+        )
+        current_app.logger.info(
+            'Paystack initialization returned HTTP %s',
+            response.status_code
+        )
+        response.raise_for_status()
         data = response.json()
-
-        if data.get('status'):
-
+        if data.get('status') and data.get('data', {}).get('authorization_url'):
             order.payment_reference = data['data']['reference']
             db.session.commit()
-
             return redirect(data['data']['authorization_url'])
-
-        flash('Could not initiate payment. Please try again.')
-
-    except requests.exceptions.RequestException as e:
-
-        print(e)
-        flash('Unable to connect to Paystack.')
-
+        current_app.logger.error(
+            'Paystack initialization failed: %s',
+            data.get('message', 'Unknown Paystack error')
+        )
+        flash('Paystack could not initialize your payment. Please try again.')
+    except requests.exceptions.Timeout:
+        current_app.logger.exception('Connection to Paystack timed out.')
+        flash('Paystack is taking too long to respond. Please try again.')
+    except requests.exceptions.ConnectionError:
+        current_app.logger.exception('Could not connect to Paystack.')
+        flash('Unable to connect to Paystack. Please check your connection.')
+    except requests.exceptions.HTTPError:
+        current_app.logger.exception('Paystack returned an HTTP error.')
+        flash('Paystack returned an error. Please try again later.')
+    except (requests.exceptions.RequestException, ValueError):
+        current_app.logger.exception('Unexpected Paystack response or request error.')
+        flash('An error occurred while starting your payment.')
     return redirect(url_for('views.order_history'))
-
 
 @views.route('/verify-payment/<int:order_id>')
 @login_required
