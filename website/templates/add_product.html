@@ -118,12 +118,70 @@
                 <div class="mb-3 form-check">
                     {{ form.flash_sale(class="form-check-input") }}
                     {{ form.flash_sale.label(class="form-check-label") }}
-
-                    {% for error in form.flash_sale.errors %}
-                        <small class="text-danger d-block">{{ error }}</small>
-                    {% endfor %}
                 </div>
 
+                <!-- Flash Sale Settings -->
+                    <div class="mb-3 p-3 bg-light rounded border">
+
+                        <h5 class="mb-3">Flash Sale Settings</h5>
+
+                        <p class="mb-3 text-muted small">
+                            Enable Flash Sale and set a promotional price and end time.
+                            Your promotional price must be lower than your regular price.
+                        </p>
+
+                        <!-- Flash Sale Price -->
+                        <div class="mb-3">
+                            {{ form.flash_sale_price.label(class="form-label") }}
+
+                            {{ form.flash_sale_price(
+                                class="form-control",
+                                step="0.01",
+                                min="0.01"
+                            ) }}
+
+                            {% for error in form.flash_sale_price.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Flash Sale End Time -->
+                        <div class="mb-3">
+                            {{ form.flash_sale_end_at.label(class="form-label") }}
+
+                            {{ form.flash_sale_end_at(
+                                class="form-control",
+                                type="datetime-local"
+                            ) }}
+
+                            {% for error in form.flash_sale_end_at.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+
+                            <small class="text-muted">
+                                Required when Flash Sale is enabled.
+                            </small>
+                        </div>
+
+                        <!-- Flash Sale Stock Limit -->
+                        <div class="mb-3">
+                            {{ form.flash_sale_stock.label(class="form-label") }}
+
+                            {{ form.flash_sale_stock(
+                                class="form-control",
+                                min="1"
+                            ) }}
+
+                            {% for error in form.flash_sale_stock.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+
+                            <small class="text-muted">
+                                Optional. Leave blank to use the product's normal stock.
+                            </small>
+                        </div>
+
+                    </div>
                 <!-- Submit -->
                 {{ form.submit(class="btn btn-primary") }}
 

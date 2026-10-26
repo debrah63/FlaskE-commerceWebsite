@@ -29,7 +29,7 @@
 
     <!-- ================= NAVBAR ================= -->
 
-    <nav class="vouch-navbar">
+    <nav class="vouch-navbar stricky-top">
 
         <div class="vouch-logo">
             <a href="/">
@@ -44,21 +44,68 @@
 
 
         <!-- Search -->
-        <div class="vouch-search">
-            <i class="bi bi-search"></i>
-            <input
-                type="text"
-                placeholder="Search for products, services, or sellers..."
+          <form action="{{ url_for('views.home') }}"
+                method="GET" class="vouch-search">
+              <i class="bi bi-search"></i>
+              <input type="search"
+                     name="q"
+                     placeholder="search for products, services, or sellers..."
+                     value="{{ request.args.get('q','') }}">
+
+          </form>
+
+
+
+               <!-- Campus Selector -->
+        <div class="campus-dropdown-wrapper" style="position: relative;">
+
+            <button
+                class="campus-selector"
+                id="campusDropdownBtn"
+                type="button"
+                aria-expanded="false"
+                aria-controls="campusDropdownMenu"
             >
+                <i class="bi bi-geo-alt-fill"></i>
+
+                <span id="currentCampusLabel">
+                    {% if request.args.get('campus') %}
+                        {{ get_campus_display_name(request.args.get('campus')) }}
+                    {% else %}
+                        All Campuses
+                    {% endif %}
+                </span>
+
+                <i class="bi bi-chevron-down"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+                class="campus-dropdown-menu"
+                id="campusDropdownMenu"
+                style="display: none; position: absolute; top: 100%; right: 0; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1000; min-width: 220px; margin-top: 8px;"
+            >
+
+                <!-- All Campuses -->
+                <a
+                    href="{{ url_for('views.home', q=request.args.get('q'), category=request.args.get('category')) }}"
+                    class="campus-dropdown-item {% if not request.args.get('campus') %}active{% endif %}"
+                >
+                    All Campuses
+                </a>
+
+                <!-- Dynamic Campus Options -->
+                {% for code, display_name in campuses %}
+                    <a
+                        href="{{ url_for('views.home', campus=code, q=request.args.get('q'), category=request.args.get('category')) }}"
+                        class="campus-dropdown-item {% if request.args.get('campus') == code %}active{% endif %}"
+                    >
+                        {{ display_name }}
+                    </a>
+                {% endfor %}
+
+            </div>
         </div>
-
-
-        <!-- Campus -->
-        <button class="campus-selector">
-            <i class="bi bi-geo-alt-fill"></i>
-            <span>GCTU</span>
-            <i class="bi bi-chevron-down"></i>
-        </button>
 
 
         <!-- Desktop navigation -->
@@ -194,7 +241,7 @@
                 <small>Sell</small>
             </a>
 
-            <a href="{{ url_for('views.messages') }}" class="moblile-naav-item">
+            <a href="{{ url_for('views.messages') }}" class="moblile-nav-item">
                 <i class="bi bi-chat"></i>
                 <span>Messages</span>
             </a>
@@ -258,6 +305,35 @@
             }
         }
     </script>
+
+
+<!-- Campus Dropdown Logic -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const campusBtn = document.getElementById('campusDropdownBtn');
+        const campusMenu = document.getElementById('campusDropdownMenu');
+
+        if (campusBtn && campusMenu) {
+            // Toggle menu on click
+            campusBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                const isOpen = campusMenu.style.display === 'block';
+                campusMenu.style.display = isOpen ? 'none' : 'block';
+
+                campusBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!campusMenu.contains(e.target) && !campusBtn.contains(e.target)) {
+                    campusMenu.style.display = 'none';
+                    campusBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+    });
+</script>
 
 </body>
 </html>

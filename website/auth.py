@@ -14,13 +14,13 @@ def get_serializer():
     return URLSafeTimedSerializer(os.environ.get('SECRET_KEY'))
 
 
+
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     form = SignUpForm()
 
     if form.validate_on_submit():
         role = form.role.data
-        print("SIGNUP ROLE:", role)
         email = form.email.data.strip().lower()
         username = form.username.data.strip()
 
@@ -68,6 +68,8 @@ def sign_up():
 
     return render_template('signup.html', form=form)
 
+
+
 @auth.route('/verify-email/<token>')
 def verify_email(token):
     serializer = get_serializer()
@@ -94,6 +96,8 @@ def verify_email(token):
     flash('Email verified successfully! You can now log in.', 'success')
     return redirect(url_for('auth.login'))
 
+
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -119,6 +123,7 @@ def login():
     return render_template('login.html', form=form)
 
 
+
 @auth.route('/logout')
 @login_required
 def log_out():
@@ -128,6 +133,7 @@ def log_out():
     flash('You have been logged out.','info')
 
     return redirect(url_for('views.home'))
+
 
 
 @auth.route('/resend-verification/<email>')
@@ -159,6 +165,7 @@ def resend_verification(email):
         flash('Could not send verification email right now. Please try again later.', 'danger')
 
     return render_template('resend_verification.html', email=email)
+
 
 
 @auth.route('/forgot-password', methods=['GET', 'POST'])
@@ -193,6 +200,7 @@ def forgot_password():
         return redirect(url_for('auth.login'))
 
     return render_template('forgot_password.html',form=form)
+
 
 
 @auth.route('/reset-password/<token>', methods=['GET', 'POST'])
@@ -235,6 +243,7 @@ def reset_password(token):
     return render_template('reset_password.html',form=form)
 
 
+
 @auth.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -257,6 +266,8 @@ def change_password():
 
     return render_template('change_password.html',form=form)
 
+
+
 @auth.route('/profile/<int:customer_id>')
 @login_required
 def profile(customer_id):
@@ -269,6 +280,8 @@ def profile(customer_id):
     bought_count = Order.query.filter_by(customer_id=current_user.id).count()
 
     return render_template('profile.html', customer=current_user, listings_count=listings_count, bought_count=bought_count)
+
+
 
 @auth.route('/request-verification', methods=['POST'])
 @login_required

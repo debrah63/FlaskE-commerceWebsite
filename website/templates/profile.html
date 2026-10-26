@@ -35,6 +35,7 @@
                 {% else %}
 
                     <form method="POST" action="{{ url_for('auth.request_verification') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="verification-request-button">
                             <i class="bi bi-patch-check"></i>
                             Request Verification

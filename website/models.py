@@ -64,6 +64,11 @@ class Product(db.Model):
     product_picture = db.Column(db.String(1000), nullable=False)
 
     flash_sale = db.Column(db.Boolean, default=False)
+    flash_sale_price = db.Column(db.Float, nullable=True)
+    flash_sale_ends_at = db.Column(db.DateTime, nullable=True)
+    flash_sale_stock = db.Column(db.Integer, nullable=True)
+    flash_sale_sold = db.Column(db.Integer, default=0 ,nullable=False)
+
 
     date_added = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
 
@@ -82,36 +87,22 @@ class Wishlist(db.Model):
 
 class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
     quantity = db.Column(db.Integer, nullable=False)
-
     customer_id = db.Column(db.Integer,db.ForeignKey('customer.id'),nullable=False)
-
     product_id = db.Column(db.Integer,db.ForeignKey('product.id'),nullable=False)
-
     customer = db.relationship('Customer',backref=db.backref('cart_items', lazy=True))
-
     product = db.relationship('Product',backref=db.backref('cart_entries', lazy=True))
 
 
 class Order(db.Model):
-
     id = db.Column(db.Integer, primary_key=True)
-
     customer_id = db.Column(db.Integer,db.ForeignKey('customer.id',ondelete='RESTRICT'),nullable=False)
-
     status = db.Column(db.String(50),default='Pending Payment')
-
     payment_status = db.Column(db.String(50),default='Unpaid')
-
     payment_reference = db.Column(db.String(200),nullable=True)
-
     shipping_fee = db.Column(db.Float, nullable=False, default=0.0)
-
     date_created = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
-
     customer = db.relationship('Customer',backref=db.backref('orders', lazy=True))
-
     items = db.relationship('OrderItem',backref='order',cascade='all, delete-orphan',lazy=True)
 
     @property
@@ -122,17 +113,12 @@ class Order(db.Model):
 
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
     quantity = db.Column(db.Integer,nullable=False,default=1)
-
     price_at_purchase = db.Column(db.Float,nullable=False)
-
+    flash_sale_at_purchase = db.Column(db.Boolean, nullable=False, default=False)
     date_added = db.Column(db.DateTime,default=lambda: datetime.now(timezone.utc))
-
     order_id = db.Column(db.Integer,db.ForeignKey('order.id'),nullable=False)
-
     product_id = db.Column(db.Integer,db.ForeignKey('product.id'),nullable=False)
-
     product = db.relationship('Product', backref=db.backref('order_items', lazy=True))
 
 

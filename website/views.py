@@ -1,12 +1,41 @@
-from flask import Blueprint, render_template, flash, redirect, request, url_for, current_app
+from itertools import product
+
+from flask import (Blueprint, render_template, flash, redirect, request, url_for,current_app)
 from flask_login import login_required, current_user
 import requests
+from sqlalchemy import or_
 from .shipping import shipping_fee
 from .models import Product, Cart, Order, OrderItem, Conversation, Message, Customer
 from . import db
-
+from website.campuses import CAMPUSES, CAMPUS_PILL_LABELS
+from datetime import datetime, timezone
 
 views = Blueprint('views', __name__)
+
+
+def get_product_price(product):
+    """Return the active Flash Sale price or the regular price."""
+
+    now = datetime.now()
+
+    flash_sale_active = (
+        product.flash_sale
+        and product.flash_sale_price is not None
+        and product.flash_sale_price > 0
+        and product.flash_sale_price < product.current_price
+        and product.flash_sale_ends_at is not None
+        and product.flash_sale_ends_at > now
+        and product.in_stock > 0
+        and (
+            product.flash_sale_stock is None
+            or product.flash_sale_sold < product.flash_sale_stock
+        )
+    )
+
+    if flash_sale_active:
+        return product.flash_sale_price
+
+    return product.current_price
 
 
 @views.route('/')
@@ -15,6 +44,8 @@ def home():
 
     campus = request.args.get('campus')
     category = request.args.get('category')
+    search_query = request.args.get('q', '').strip()
+
 
     query = Product.query
 
@@ -33,10 +64,29 @@ def home():
             Product.category == category
         )
 
+    # Search product name, descriptions, categories, and brands
+    if search_query:
+        search_term = f'%{search_query}%'
+
+        query = query.filter(or_(Product.product_name.ilike(search_term),
+                         Product.description.ilike(search_term),
+                                 Product.category.ilike(search_term),
+                                 Product.brand.ilike(search_term),))
+
     # Newest products first
     items = query.order_by(
         Product.date_added.desc()
     ).all()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    flash_sales = (Product.query.filter(Product.flash_sale.is_(True),
+                                        Product.flash_sale_price.isnot(None),
+                                        Product.in_stock > 0,
+                                        Product.flash_sale_price < Product.current_price,
+                                        Product.flash_sale_ends_at.isnot(None),
+                                        Product.flash_sale_ends_at > now,
+                                        Product.in_stock > 0,
+                                        or_(Product.flash_sale_stock.is_(None),
+                                            Product.flash_sale_sold < Product.flash_sale_stock)).order_by(Product.flash_sale_ends_at.asc()).limit(5).all())
 
     # Wishlist
     wishlisted_ids = set()
@@ -52,9 +102,12 @@ def home():
     return render_template(
         'home.html',
         items=items,
+        flash_sales=flash_sales,
         wishlisted_ids=wishlisted_ids,
         selected_campus=campus,
-        selected_category=category
+        selected_category=category,
+        campuses=CAMPUSES,
+        campus_pill_labels=CAMPUS_PILL_LABELS
     )
 
 
@@ -265,7 +318,7 @@ def show_cart():
     ).all()
 
     amount = sum(
-        item.product.current_price * item.quantity
+        get_product_price(item.product) * item.quantity
         for item in cart
         if item.product
     )
@@ -289,7 +342,8 @@ def show_cart():
         cart=cart,
         amount=amount,
         shipping=shipping_total,
-        total=amount + shipping_total
+        total=amount + shipping_total,
+        get_product_price=get_product_price
     )
 
 
@@ -367,7 +421,7 @@ def checkout():
         return redirect(url_for('views.home'))
 
     total_items = sum(
-        item.product.current_price * item.quantity
+        get_product_price(item.product) * item.quantity
         for item in cart
         if item.product
     )
@@ -390,8 +444,11 @@ def checkout():
         'checkout.html',
         cart=cart,
         shipping=shipping_total,
-        total=total_items + shipping_total
+        total=total_items + shipping_total,
+        get_product_price=get_product_price
     )
+
+
 
 @views.route('/place-order', methods=['POST'])
 @login_required
@@ -399,25 +456,37 @@ def place_order():
     cart = Cart.query.filter_by(
         customer_id=current_user.id
     ).all()
+
     if not cart:
         flash('Your cart is empty')
         return redirect(url_for('views.home'))
+
     try:
-        # Check stock before creating the order
+        # Check product stock before creating the order.
         for item in cart:
+            if not item.product:
+                flash('A product in your cart is no longer available.')
+                return redirect(url_for('views.show_cart'))
+
+            if item.quantity <= 0:
+                flash('Invalid product quantity.')
+                return redirect(url_for('views.show_cart'))
+
             if item.quantity > item.product.in_stock:
                 flash(
                     f'Only {item.product.in_stock} '
                     f'"{item.product.product_name}" left in stock.'
                 )
                 return redirect(url_for('views.show_cart'))
-        # Get the unique campuses of sellers in the cart
+
+        # Get the unique campuses of sellers in the cart.
         seller_campuses = {
             item.product.seller.campus
             for item in cart
             if item.product and item.product.seller
         }
-        # Calculate shipping based on buyer's campus
+
+        # Calculate shipping based on the buyer's campus.
         shipping_total = sum(
             shipping_fee(
                 current_user.campus,
@@ -425,31 +494,67 @@ def place_order():
             )['fee']
             for campus in seller_campuses
         )
-        # Create the order
+
+        # Create the order.
         new_order = Order(
             customer_id=current_user.id,
             status='Pending Payment',
             shipping_fee=shipping_total
         )
+
         db.session.add(new_order)
         db.session.flush()
-        # Move cart items into the order
+
+        # Move cart items into the order.
         for item in cart:
+            product = item.product
+            purchase_price = get_product_price(product)
+
+            # Record whether the item was purchased at
+            # the active Flash Sale price.
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
+
+            flash_sale_at_purchase = (
+                product.flash_sale
+                and product.flash_sale_price is not None
+                and product.flash_sale_price > 0
+                and product.flash_sale_price < product.current_price
+                and purchase_price == product.flash_sale_price
+                and product.flash_sale_ends_at is not None
+                and product.flash_sale_ends_at > now
+                and product.in_stock > 0
+                and (
+                    product.flash_sale_stock is None
+                    or product.flash_sale_sold < product.flash_sale_stock
+                )
+            )
+
             new_item = OrderItem(
                 order_id=new_order.id,
-                product_id=item.product_id,
+                product_id=product.id,
                 quantity=item.quantity,
-                price_at_purchase=item.product.current_price
+                price_at_purchase=purchase_price,
+                flash_sale_at_purchase=flash_sale_at_purchase
             )
+
             db.session.add(new_item)
             db.session.delete(item)
+
         db.session.commit()
+
         flash('Order placed successfully! Awaiting payment.')
+
         return redirect(url_for('views.order_history'))
-    except Exception as e:
+
+    except Exception:
         db.session.rollback()
-        print(e)
-        flash('Something went wrong while placing your order')
+
+        current_app.logger.exception(
+            'Error while placing an order.'
+        )
+
+        flash('Something went wrong while placing your order.')
+
         return redirect(url_for('views.show_cart'))
 
 
@@ -531,57 +636,149 @@ def initiate_payment(order_id):
         flash('An error occurred while starting your payment.')
     return redirect(url_for('views.order_history'))
 
+
 @views.route('/verify-payment/<int:order_id>')
 @login_required
 def verify_payment(order_id):
-
     order = db.session.get(Order, order_id)
 
     if not order or order.customer_id != current_user.id:
-        flash('Order not found')
+        flash('Order not found.')
         return redirect(url_for('views.order_history'))
 
     if order.status == 'Paid':
         flash('Payment has already been verified.')
         return redirect(url_for('views.order_history'))
 
-    secret_key = current_app.config['PAYSTACK_SECRET_KEY']
+    if order.status != 'Pending Payment':
+        flash('This order is not awaiting payment.')
+        return redirect(url_for('views.order_history'))
 
-    headers = {'Authorization': f'Bearer {secret_key}'}
+    if not order.payment_reference:
+        flash('No payment reference was found for this order.')
+        return redirect(url_for('views.order_history'))
+
+    secret_key = current_app.config.get('PAYSTACK_SECRET_KEY')
+
+    if not secret_key:
+        current_app.logger.error('Paystack secret key is missing.')
+        flash('Payment verification is temporarily unavailable.')
+        return redirect(url_for('views.order_history'))
+
+    headers = {
+        'Authorization': f'Bearer {secret_key}'
+    }
 
     try:
+        response = requests.get(
+            f'https://api.paystack.co/transaction/verify/{order.payment_reference}',
+            headers=headers,
+            timeout=(10, 30)
+        )
 
-        response = requests.get(f'https://api.paystack.co/transaction/verify/{order.payment_reference}',headers=headers,timeout=30)
+        response.raise_for_status()
+        result = response.json()
 
-        data = response.json()
+        if not result.get('status'):
+            flash('Paystack could not verify this payment.')
+            return redirect(url_for('views.order_history'))
 
-        if data.get('status') and data['data']['status'] == 'success':
+        payment = result.get('data') or {}
 
-            for item in order.items:
+        if payment.get('status') != 'success':
+            flash('Payment has not been completed successfully.')
+            return redirect(url_for('views.order_history'))
 
-                if item.product.in_stock < item.quantity:
+        if payment.get('reference') != order.payment_reference:
+            current_app.logger.warning(
+                'Payment reference mismatch for order %s.',
+                order.id
+            )
+            flash('Payment verification failed.')
+            return redirect(url_for('views.order_history'))
 
-                    flash(f'{item.product.product_name} is no longer available.')
+        expected_amount = int(
+            round(float(order.total_amount) * 100)
+        )
 
-                    return redirect(url_for('views.order_history'))
+        try:
+            paid_amount = int(payment.get('amount', -1))
+        except (TypeError, ValueError):
+            paid_amount = -1
 
-            order.status = 'Paid'
-            order.payment_status = 'Paid'
+        if paid_amount != expected_amount:
+            current_app.logger.warning(
+                'Payment amount mismatch for order %s.',
+                order.id
+            )
+            flash('The payment amount does not match your order.')
+            return redirect(url_for('views.order_history'))
 
-            for item in order.items:
-                item.product.in_stock -= item.quantity
+        if payment.get('currency') != 'GHS':
+            flash('The payment currency does not match your order.')
+            return redirect(url_for('views.order_history'))
 
-            db.session.commit()
+        # Check all products before changing stock.
+        for item in order.items:
+            if not item.product:
+                current_app.logger.error(
+                    'Product missing from order %s.',
+                    order.id
+                )
+                flash(
+                    'An item in this order is unavailable. '
+                    'Please contact support.'
+                )
+                return redirect(url_for('views.order_history'))
 
-            flash('Payment successful! Your order has been confirmed.')
+            if item.quantity <= 0:
+                flash('Order verification failed.')
+                return redirect(url_for('views.order_history'))
 
-        else:
+            if item.product.in_stock < item.quantity:
+                flash(
+                    f'Not enough stock remains for '
+                    f'{item.product.product_name}. '
+                    f'Please contact support.'
+                )
+                return redirect(url_for('views.order_history'))
 
-            flash('Payment was not successful.')
+        # Payment and stock checks passed.
+        for item in order.items:
+            item.product.in_stock -= item.quantity
 
-    except requests.exceptions.RequestException as e:
+            if (product.flash_sale_price is not None and item.price_at_purchase == product.flash_sale_price):
+                product.flash_sale_sold = ((product.flash_sale_sold or 0) + item.quantity)
 
-        print(e)
-        flash('Unable to verify payment at the moment.')
+        order.status = 'Paid'
+        order.payment_status = 'Paid'
+
+        db.session.commit()
+
+        flash('Payment successful! Your order has been confirmed.')
+
+    except requests.exceptions.RequestException:
+        db.session.rollback()
+        current_app.logger.exception(
+            'Paystack verification request failed.'
+        )
+        flash(
+            'Unable to verify payment right now. '
+            'Please check your order status again shortly.'
+        )
+
+    except (ValueError, TypeError, KeyError):
+        db.session.rollback()
+        current_app.logger.exception(
+            'Unexpected Paystack verification response.'
+        )
+        flash('Unable to verify payment right now.')
+
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception(
+            'Unexpected error while confirming order payment.'
+        )
+        flash('Something went wrong while confirming your order.')
 
     return redirect(url_for('views.order_history'))

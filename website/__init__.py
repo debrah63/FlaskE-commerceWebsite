@@ -4,6 +4,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect
 
 load_dotenv()
 
@@ -16,7 +17,8 @@ DB_NAME = 'database.sqlite3'
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    csrf = CSRFProtect(app)
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
 
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -38,6 +40,8 @@ def create_app():
     @app.context_processor
     def inject_unread_count():
         from .models import Conversation, Message
+        from .campuses  import (CAMPUSES, CAMPUS_PILL_LABELS, get_campus_display_name, get_campus_pill_label)
+
         if current_user.is_authenticated:
             count = Message.query.filter(
                 Message.sender_id != current_user.id,
@@ -51,7 +55,7 @@ def create_app():
             ).count()
         else:
             count = 0
-        return dict(unread_count=count)
+        return dict(unread_count=count, campuses=CAMPUSES, campus_pill_labels=CAMPUS_PILL_LABELS,get_campus_display_name=get_campus_display_name,get_campus_pill_label=get_campus_pill_label)
 
     from .models import Customer, Conversation, Message
 
@@ -65,8 +69,8 @@ def create_app():
     def load_user(user_id):
         return db.session.get(Customer, int(user_id))
 
-    @app.context_processor
-    def inject_unread_messages():
+    #pp.context_processor
+    #def inject_unread_messages():
         unread_count = 0
 
         if current_user.is_authenticated:
