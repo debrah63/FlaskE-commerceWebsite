@@ -5504,3 +5504,63 @@ input {
     background: #f1f1f1;
     color: #666;
 }
+
+
+/* ================= BEST SELLERS ================= */
+
+.best-sellers-section {
+    margin: 36px 0;
+}
+
+.best-sellers-section .section-heading h2 {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.best-sellers-section .section-heading h2 i {
+    color: #d4a017;
+}
+
+.best-sellers-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 20px;
+    background: #fff7df;
+    color: #8a6500;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+}
+
+.best-seller-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    background: #fff7df;
+    color: #8a6500;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.best-sellers-section .product-image-container {
+    position: relative;
+}
+
+@media (max-width: 576px) {
+    .best-sellers-section {
+        margin: 26px 0;
+    }
+
+    .best-sellers-label {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+}

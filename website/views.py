@@ -1,9 +1,7 @@
-from itertools import product
-
 from flask import (Blueprint, render_template, flash, redirect, request, url_for,current_app)
 from flask_login import login_required, current_user
 import requests
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from .shipping import shipping_fee
 from .models import Product, Cart, Order, OrderItem, Conversation, Message, Customer
 from . import db
@@ -16,7 +14,7 @@ views = Blueprint('views', __name__)
 def get_product_price(product):
     """Return the active Flash Sale price or the regular price."""
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     flash_sale_active = (
         product.flash_sale
@@ -88,6 +86,28 @@ def home():
                                         or_(Product.flash_sale_stock.is_(None),
                                             Product.flash_sale_sold < Product.flash_sale_stock)).order_by(Product.flash_sale_ends_at.asc()).limit(5).all())
 
+    # Find the Top 4 Best Sellers based on paid orders only
+    best_sellers_query = db.session.query(
+        Product,
+        func.sum(OrderItem.quantity).label('total_sold')
+    ).join(
+        OrderItem, Product.id == OrderItem.product_id
+    ).join(
+        Order, OrderItem.order_id == Order.id
+    ).filter(
+        Order.payment_status == 'Paid'
+    ).group_by(
+        Product.id
+    ).order_by(
+        func.sum(OrderItem.quantity).desc()
+    ).limit(4).all()
+
+    # Extract the Product objects
+    best_sellers = [
+        product for product, total_sold in best_sellers_query
+    ]
+
+
     # Wishlist
     wishlisted_ids = set()
 
@@ -103,6 +123,7 @@ def home():
         'home.html',
         items=items,
         flash_sales=flash_sales,
+        best_sellers=best_sellers,
         wishlisted_ids=wishlisted_ids,
         selected_campus=campus,
         selected_category=category,
@@ -745,9 +766,11 @@ def verify_payment(order_id):
 
         # Payment and stock checks passed.
         for item in order.items:
-            item.product.in_stock -= item.quantity
+            product = item.product
 
-            if (product.flash_sale_price is not None and item.price_at_purchase == product.flash_sale_price):
+            product.in_stock -= item.quantity
+
+            if (item.flash_sale_at_purchase and product.flash_sale_price is not None):
                 product.flash_sale_sold = ((product.flash_sale_sold or 0) + item.quantity)
 
         order.status = 'Paid'
