@@ -268,9 +268,18 @@
                     <p>Limited-time deals you don't want to miss.</p>
                 </div>
 
+                <div class="section-heading-actions">
+
                 <span class="flash-sales-label">
                     HOT DEALS
                 </span>
+
+                <a href="{{ url_for('views.flash_sales_page') }}" class="view-all">
+                    View All
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+
+            </div>
 
             </div>
 
@@ -437,10 +446,20 @@
                 <p>Campus favourites students are buying.</p>
             </div>
 
-            <span class="best-sellers-label">
-                TOP PRODUCTS
-            </span>
+            <div class="section-heading-actions">
 
+                <span class="best-sellers-label">
+                    TOP PRODUCTS
+                </span>
+
+                <a
+                    href="{{ url_for('views.best_sellers_page') }}"
+
+                >
+                    View All
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
         </div>
 
         <div class="vouch-product-grid">
@@ -604,7 +623,7 @@
 
             </div>
 
-            <a href="{{ url_for('views.home') }}" class="view-all">
+            <a href="{{ url_for('views.recently_listed_page') }}" class="view-all">
                 View all
                 <i class="bi bi-arrow-right"></i>
             </a>

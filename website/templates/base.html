@@ -130,9 +130,15 @@
                 {% endif %}
             </a>
 
-                <a href="/profile/{{ current_user.id }}" title="Profile">
+                <button
+                    type="button"
+                    class="vouch-account-trigger"
+                    data-account-panel-trigger
+                    aria-label="Open account panel"
+                    title="My Account"
+                >
                     <i class="bi bi-person"></i>
-                </a>
+                </button>
 
                 {% if current_user.role == 'admin' %}
                     <a href="/admin-dashboard" title="Admin Dashboard">
@@ -219,6 +225,8 @@
 
     </main>
 
+    {% include 'account_panel.html' %}
+
 
     <!-- ================= MOBILE NAVIGATION ================= -->
 
@@ -246,10 +254,15 @@
                 <span>Messages</span>
             </a>
 
-            <a href="/profile/{{ current_user.id }}" class="mobile-nav-item">
+            <button
+                type="button"
+                class="mobile-nav-item mobile-account-trigger"
+                data-account-panel-trigger
+                aria-label="Open account panel"
+            >
                 <i class="bi bi-person"></i>
                 <span>Account</span>
-            </a>
+            </button>
 
         {% else %}
 
@@ -335,5 +348,7 @@
     });
 </script>
 
+
+<script src="{{ url_for('static', filename='js/account_panel.js') }}"></script>
 </body>
 </html>

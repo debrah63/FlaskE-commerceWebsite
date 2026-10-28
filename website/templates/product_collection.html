@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | Vouch{% endblock %}
+
+{% block body %}
+
+<div class="vouch-home product-collection-page">
+
+    <section class="collection-header">
+
+        <a href="{{ url_for('views.home') }}" class="collection-back">
+            <i class="bi bi-arrow-left"></i>
+            Back to Marketplace
+        </a>
+
+        <div class="collection-heading">
+
+            <div>
+                <h1>{{ title }}</h1>
+                <p>{{ description }}</p>
+            </div>
+
+            <span class="collection-count">
+                {{ pagination.total }} products
+            </span>
+
+        </div>
+
+    </section>
+
+
+    {% if items %}
+
+        <section class="collection-products">
+
+            <div class="vouch-product-grid">
+
+                {% for item in items %}
+
+                    <div class="vouch-product-card">
+
+                        <div class="product-image-container">
+
+                            <a
+                                href="{{ url_for('views.product_detail', product_id=item.id) }}"
+                                class="product-image-link"
+                            >
+                                <img
+                                    src="/media/{{ item.product_picture }}"
+                                    alt="{{ item.product_name }}"
+                                    class="product-image"
+                                >
+                            </a>
+
+                            {% if collection_type == 'flash-sales' %}
+
+                                <span class="flash-sale-badge">
+                                    {% set discount = (
+                                        (item.current_price - item.flash_sale_price)
+                                        / item.current_price * 100
+                                    )|round|int %}
+
+                                    {{ discount }}% OFF
+                                </span>
+
+                            {% elif collection_type == 'best-sellers' %}
+
+                                <span class="best-seller-badge">
+                                    <i class="bi bi-trophy-fill"></i>
+                                    Best Seller
+                                </span>
+
+                            {% endif %}
+
+
+                            {% if current_user.is_authenticated %}
+
+                                <a
+                                    href="{{ url_for('views.toggle_wishlist', product_id=item.id) }}"
+                                    class="favorite-button"
+                                    aria-label="Toggle wishlist"
+                                >
+                                    <i class="bi {% if item.id in wishlisted_ids %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+                                </a>
+
+                            {% else %}
+
+                                <a
+                                    href="{{ url_for('auth.login') }}"
+                                    class="favorite-button"
+                                    aria-label="Log in to save this product"
+                                >
+                                    <i class="bi bi-heart"></i>
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="product-information">
+
+                            {% if item.seller and item.seller.verification_status == 'verified' %}
+
+                                <div class="verified-badge">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    Verified Student
+                                </div>
+
+                            {% endif %}
+
+
+                            <h3>
+                                <a
+                                    href="{{ url_for('views.product_detail', product_id=item.id) }}"
+                                    class="product-title-link"
+                                >
+                                    {{ item.product_name }}
+                                </a>
+                            </h3>
+
+
+                            <div class="product-price">
+
+                                {% if collection_type == 'flash-sales' %}
+
+                                    <span class="current-price">
+                                        GH₵ {{ "{:,.2f}".format(item.flash_sale_price) }}
+                                    </span>
+
+                                    <span class="previous-price">
+                                        GH₵ {{ "{:,.2f}".format(item.current_price) }}
+                                    </span>
+
+                                {% else %}
+
+                                    GH₵ {{ "{:,.2f}".format(get_product_price(item)) }}
+
+                                    {% if item.previous_price %}
+
+                                        <span class="previous-price">
+                                            GH₵ {{ "{:,.2f}".format(item.previous_price) }}
+                                        </span>
+
+                                    {% endif %}
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="product-campus">
+                                <i class="bi bi-geo-alt"></i>
+
+                                {{ item.seller.campus if item.seller and item.seller.campus else 'Campus not specified' }}
+                            </div>
+
+
+                            <div class="product-actions">
+
+                                {% if item.in_stock > 0 %}
+
+                                    <a
+                                        href="{{ url_for('views.add_to_cart', item_id=item.id) }}"
+                                        class="add-cart-btn"
+                                    >
+                                        <i class="bi bi-cart-plus"></i>
+                                        Add to Cart
+                                    </a>
+
+                                {% else %}
+
+                                    <span class="out-of-stock">
+                                        Out of Stock
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        {% if pagination.pages > 1 %}
+
+            <nav class="collection-pagination" aria-label="Product pages">
+
+                {% if pagination.has_prev %}
+
+                    <a
+                        href="{{ url_for(request.endpoint, page=pagination.prev_num) }}"
+                        class="pagination-button"
+                    >
+                        <i class="bi bi-chevron-left"></i>
+                        Previous
+                    </a>
+
+                {% else %}
+
+                    <span class="pagination-button disabled">
+                        <i class="bi bi-chevron-left"></i>
+                        Previous
+                    </span>
+
+                {% endif %}
+
+
+                <span class="pagination-info">
+                    Page {{ pagination.page }} of {{ pagination.pages }}
+                </span>
+
+
+                {% if pagination.has_next %}
+
+                    <a
+                        href="{{ url_for(request.endpoint, page=pagination.next_num) }}"
+                        class="pagination-button"
+                    >
+                        Next
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+
+                {% else %}
+
+                    <span class="pagination-button disabled">
+                        Next
+                        <i class="bi bi-chevron-right"></i>
+                    </span>
+
+                {% endif %}
+
+            </nav>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <div class="empty-products">
+
+            <i class="bi bi-box-seam"></i>
+
+            <h3>No products found.</h3>
+
+            <p>Check back later for more products on Vouch.</p>
+
+            <a href="{{ url_for('views.home') }}" class="hero-primary-btn">
+                Explore Marketplace
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

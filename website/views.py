@@ -11,6 +11,137 @@ from datetime import datetime, timezone
 views = Blueprint('views', __name__)
 
 
+def render_product_collection(collection_type, title, description):
+    from .models import Wishlist
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+
+    if page < 1:
+        page = 1
+
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    # Flash Sales collection
+    if collection_type == 'flash-sales':
+
+        products_query = Product.query.filter(
+            Product.flash_sale.is_(True),
+            Product.flash_sale_price.isnot(None),
+            Product.flash_sale_price > 0,
+            Product.flash_sale_price < Product.current_price,
+            Product.flash_sale_ends_at.isnot(None),
+            Product.flash_sale_ends_at > now,
+            Product.in_stock > 0,
+            or_(
+                Product.flash_sale_stock.is_(None),
+                Product.flash_sale_sold < Product.flash_sale_stock
+            )
+        ).order_by(
+            Product.flash_sale_ends_at.asc()
+        )
+
+        pagination = products_query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+    # Best Sellers collection
+    elif collection_type == 'best-sellers':
+
+        sales_subquery = db.session.query(
+            OrderItem.product_id.label('product_id'),
+            func.sum(OrderItem.quantity).label('total_sold')
+        ).join(
+            Order,
+            OrderItem.order_id == Order.id
+        ).filter(
+            Order.payment_status == 'Paid'
+        ).group_by(
+            OrderItem.product_id
+        ).subquery()
+
+        products_query = Product.query.join(
+            sales_subquery,
+            Product.id == sales_subquery.c.product_id
+        ).order_by(
+            sales_subquery.c.total_sold.desc(),
+            Product.id.desc()
+        )
+
+        pagination = products_query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+    # Recently Listed collection
+    else:
+
+        products_query = Product.query.order_by(
+            Product.date_added.desc()
+        )
+
+        pagination = products_query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+
+    # Get products on the current page.
+    items = pagination.items
+
+    # Load the current user's wishlist.
+    wishlisted_ids = set()
+
+    if current_user.is_authenticated:
+        wishlisted_ids = {
+            item.product_id
+            for item in Wishlist.query.filter_by(
+                customer_id=current_user.id
+            ).all()
+        }
+
+    return render_template(
+        'product_collection.html',
+        items=items,
+        pagination=pagination,
+        collection_type=collection_type,
+        title=title,
+        description=description,
+        wishlisted_ids=wishlisted_ids,
+        get_product_price=get_product_price
+    )
+
+
+@views.route('/flash-sales')
+def flash_sales_page():
+    return render_product_collection(
+        collection_type='flash-sales',
+        title='Flash Sales',
+        description='Discover limited-time deals before they expire.'
+    )
+
+
+@views.route('/best-sellers')
+def best_sellers_page():
+    return render_product_collection(
+        collection_type='best-sellers',
+        title='Best Sellers',
+        description='Discover products students are buying the most.'
+    )
+
+
+@views.route('/recently-listed')
+def recently_listed_page():
+    return render_product_collection(
+        collection_type='recently-listed',
+        title='Recently Listed',
+        description='Explore the newest products added to Vouch.'
+    )
+
+
 def get_product_price(product):
     """Return the active Flash Sale price or the regular price."""
 
@@ -74,7 +205,7 @@ def home():
     # Newest products first
     items = query.order_by(
         Product.date_added.desc()
-    ).all()
+    ).limit(5).all()
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     flash_sales = (Product.query.filter(Product.flash_sale.is_(True),
                                         Product.flash_sale_price.isnot(None),
@@ -100,7 +231,7 @@ def home():
         Product.id
     ).order_by(
         func.sum(OrderItem.quantity).desc()
-    ).limit(4).all()
+    ).limit(5).all()
 
     # Extract the Product objects
     best_sellers = [

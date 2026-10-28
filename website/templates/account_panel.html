@@ -1,0 +1,234 @@
+<!-- Account Panel Backdrop -->
+<div class="account-panel-backdrop" id="accountPanelBackdrop"></div>
+
+<!-- Account Slide-Out Panel -->
+<aside
+    class="account-panel"
+    id="accountPanel"
+    aria-label="Your account"
+    aria-hidden="true"
+    inert
+>
+    <!-- Panel Header -->
+    <div class="account-panel-topbar">
+        <span class="account-panel-heading">My Account</span>
+
+        <button
+            type="button"
+            class="account-panel-close"
+            id="closeAccountPanel"
+            aria-label="Close account panel"
+        >
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    {% if current_user.is_authenticated %}
+
+    <!-- Profile Header -->
+    <section class="account-profile-header">
+
+        <a
+            href="{{ url_for('views.home') }}"
+            class="account-settings-button"
+            aria-label="Account settings"
+            title="Account settings"
+        >
+            <i class="bi bi-gear"></i>
+        </a>
+
+        <div class="account-profile-info">
+
+            <div class="account-avatar">
+                {{ (current_user.username or current_user.email or 'V')[0]|upper }}
+            </div>
+
+            <div class="account-profile-details">
+
+                <h2>
+                    {{ current_user.username or 'Vouch Member' }}
+                </h2>
+
+                {% if current_user.verification_status == 'verified' %}
+                    <span class="account-verification-badge">
+                        <i class="bi bi-patch-check-fill"></i>
+                        Verified Student
+                    </span>
+                {% endif %}
+
+                <p class="account-campus">
+                    <i class="bi bi-mortarboard-fill"></i>
+                    {{ current_user.campus or 'Campus not selected' }}
+                </p>
+
+                <p class="account-membership">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    Vouch Marketplace
+                </p>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Account Statistics -->
+    <section class="account-statistics">
+
+        <a href="{{ url_for('views.my_products') if false else url_for('views.home') }}"
+           class="account-stat">
+            <strong>{{ current_user.products|length }}</strong>
+            <span>Listings</span>
+        </a>
+
+        <a href="{{ url_for('views.order_history') }}"
+           class="account-stat">
+            <strong>
+                {% set sold_count = namespace(total=0) %}
+
+                {% for product in current_user.products %}
+                    {% for order_item in product.order_items %}
+                        {% if order_item.order.payment_status == 'Paid' %}
+                            {% set sold_count.total = sold_count.total + order_item.quantity %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+                {{ sold_count.total }}
+            </strong>
+            <span>Sold</span>
+        </a>
+
+        <a href="{{ url_for('views.order_history') }}"
+           class="account-stat">
+            <strong>
+                {{ current_user.orders|length }}
+            </strong>
+            <span>Purchases</span>
+        </a>
+
+        <a href="#accountWishlist"
+           class="account-stat"
+           data-account-link>
+            <strong>{{ current_user.wishlist_items|length }}</strong>
+            <span>Saved</span>
+        </a>
+
+    </section>
+
+    <!-- Marketplace Menu -->
+    <section class="account-menu-section">
+
+        <h3>YOUR MARKETPLACE</h3>
+
+        <a href="/my-products" class="account-menu-item">
+            <span class="account-menu-icon">
+                <i class="bi bi-card-list"></i>
+            </span>
+            <span>My Listings</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('views.order_history') }}"
+           class="account-menu-item">
+            <span class="account-menu-icon">
+                <i class="bi bi-bag-check"></i>
+            </span>
+            <span>My Purchases</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        <a href="#accountWishlist"
+           class="account-menu-item"
+           data-account-link>
+            <span class="account-menu-icon">
+                <i class="bi bi-heart"></i>
+            </span>
+            <span>Wishlist</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('views.messages') }}"
+           class="account-menu-item">
+            <span class="account-menu-icon">
+                <i class="bi bi-chat-square-text"></i>
+            </span>
+            <span>Messages</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+    </section>
+
+    <!-- Account Menu -->
+    <section class="account-menu-section">
+
+        <h3>YOUR ACCOUNT</h3>
+
+        <a href="#accountSettings"
+           class="account-menu-item"
+           data-account-link>
+            <span class="account-menu-icon">
+                <i class="bi bi-gear"></i>
+            </span>
+            <span>Settings</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        <a href="#accountHelp"
+           class="account-menu-item"
+           data-account-link>
+            <span class="account-menu-icon">
+                <i class="bi bi-question-circle"></i>
+            </span>
+            <span>Help &amp; Support</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        <a href="#aboutVouch"
+           class="account-menu-item"
+           data-account-link>
+            <span class="account-menu-icon">
+                <i class="bi bi-info-circle"></i>
+            </span>
+            <span>About Vouch</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+
+        {% if current_user.role == 'admin' %}
+        <a href="/admin-dashboard" class="account-menu-item">
+            <span class="account-menu-icon">
+                <i class="bi bi-speedometer2"></i>
+            </span>
+            <span>Admin Dashboard</span>
+            <i class="bi bi-chevron-right account-menu-arrow"></i>
+        </a>
+        {% endif %}
+
+    </section>
+
+    <!-- Sign Out -->
+    <div class="account-logout-section">
+
+        <a href="/logout" class="account-logout-button">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Log Out</span>
+        </a>
+
+    </div>
+
+    {% else %}
+
+    <div class="account-guest">
+        <i class="bi bi-person-circle"></i>
+
+        <h2>Welcome to Vouch</h2>
+
+        <p>Sign in to manage your listings, purchases, and messages.</p>
+
+        <a href="/login" class="account-login-button">Log In</a>
+
+        <a href="/sign-up" class="account-signup-button">Create Account</a>
+    </div>
+
+    {% endif %}
+
+</aside>
